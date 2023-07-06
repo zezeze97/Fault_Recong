@@ -75,21 +75,23 @@ def dat2h5():
     get_slice(seis=seis_data[:373,:,:], fault=label[:373,:,:],save_path=os.path.join(data_path, 'crop_192x384x384', 'train'), patch_shape=(192, 384, 384), stride_shape=(96, 192, 192))
     get_slice(seis=seis_data[373:,:,:], fault=label[373:,:,:],save_path=os.path.join(data_path, 'crop_192x384x384', 'val'), patch_shape=(128, 384, 384), stride_shape=(128, 192, 192))
     """
-    data_path = '/gpfs/share/home/2001110054/ondemand/code/Fault_Recong/Fault_data/public_data'
+    data_path = '/lustre/home/2001110054/Fault_Recong/Fault_data/public_data'
     
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
-    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_128', 'train'), patch_shape=(128, 128, 128), stride_shape=(64, 64, 64))
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_512', 'train'), patch_shape=(512, 512, 512), stride_shape=(256, 256, 256))
     del seis_train
     del fault_train
-    
+    '''
     print('loading seis val data')
     seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'), mmap_mode='r')
     fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'), mmap_mode='r')
-    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_128', 'val'), patch_shape=(128, 128, 128), stride_shape=(64, 64, 64))
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_512', 'val'), patch_shape=(512, 512, 512), stride_shape=(256, 256, 256))
     del seis_val
     del fault_val
+    '''
+    
     
     
     
@@ -224,8 +226,8 @@ class SliceBuilder:
         assert patch_shape[1] >= 64 and patch_shape[2] >= 64, 'Height and Width must be greater or equal 64'
     
 if __name__ == '__main__':
-    # dat2h5()
-    crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
+    dat2h5()
+    # crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
     '''
     root_dir_lst = ['/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/qyb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/gjb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/pl', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/yw', '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data']
     seis_name_lst = ['20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy', 'L500_1500_T500_2000_aa_pstm_0922_cg.sgy', '20230419_PLB-YW-pstm-post-yanshou-Q_biaoqian.sgy', 'mig.sgy', 'mig_fill.sgy']
