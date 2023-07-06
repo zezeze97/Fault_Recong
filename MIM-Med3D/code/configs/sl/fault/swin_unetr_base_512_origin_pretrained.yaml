@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetuning
-      version: swin_unetr_base_simmim_p16_public_512_flip_rotate_aug
+      version: swin_unetr_base_origin_pretrained_p16_public_256_flip_rotate_aug
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -100,8 +100,8 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75/checkpoints/best.ckpt
-      revise_keys: [['model.encoder.', '']]
+      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swin_unetr_origin_ssl/checkpoints/best.ckpt
+      revise_keys: [['model.swinViT.', '']]
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
