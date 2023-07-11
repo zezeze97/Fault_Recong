@@ -80,17 +80,17 @@ def dat2h5():
     print('loading seis train data')
     seis_train = np.load(os.path.join(data_path, 'precessed', 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
     fault_train = np.load(os.path.join(data_path, 'precessed', 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
-    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_512', 'train'), patch_shape=(512, 512, 512), stride_shape=(256, 256, 256))
+    get_slice(seis=seis_train, fault=fault_train, save_path=os.path.join(data_path, 'crop_128', 'train'), patch_shape=(128, 128, 128), stride_shape=(64, 64, 64))
     del seis_train
     del fault_train
-    '''
+    
     print('loading seis val data')
     seis_val = np.load(os.path.join(data_path, 'precessed','val', 'seis', 'seisval.npy'), mmap_mode='r')
     fault_val = np.load(os.path.join(data_path, 'precessed', 'val', 'fault', 'faultval.npy'), mmap_mode='r')
-    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_512', 'val'), patch_shape=(512, 512, 512), stride_shape=(256, 256, 256))
+    get_slice(seis=seis_val, fault=fault_val, save_path=os.path.join(data_path, 'crop_128', 'val'), patch_shape=(128, 128, 128), stride_shape=(64, 64, 64))
     del seis_val
     del fault_val
-    '''
+    
     
     
     
