@@ -105,7 +105,7 @@ data:
   init_args:
     is_ssl: false
     labeled_data_root_dir_lst: ['../Fault_data/public_data/crop_256']
-    batch_size: 2
+    batch_size: 8
     val_batch_size: 1
     num_workers: 8
     dist: true
