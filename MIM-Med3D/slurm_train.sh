@@ -1,8 +1,15 @@
-# For example, using AWS g5.48xlarge instance for slurm training 2 days
-# brats data pretraining using SimMIM on t1ce modality
-sbatch --ntasks-per-node=192 \
-       --partition=g5-on-demand \
-       --time=2-00:00:00  \
-       --gres=gpu:8 \
-       --constraint="[g5.48xlarge]" \
-       --wrap="sh train.sh code/experiments/ssl/simmim_pretrain_main.py code/configs/ssl/brats/vitsimmim_base_m0.75_t1ce.yaml"
+#!/bin/bash
+#SBATCH -o job.%j.out
+#SBATCH --partition=GPU40G
+#SBATCH --qos=low
+#SBATCH -J swin_unetr_base_multi_decoder
+#SBATCH --nodes=1          
+#SBATCH --cpus-per-task=8   
+#SBATCH --ntasks-per-node=4
+#SBATCH --gres=gpu:4     
+#SBATCH --time=5-00:00:00
+
+
+MAIN_FILE=$1
+CONFIG_FILE=$2
+srun python3 $MAIN_FILE fit --config $CONFIG_FILE
