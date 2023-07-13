@@ -15,7 +15,7 @@ from metrics import dice_coefficient_batch, compute_acc_batch, compute_f1_batch
 import optimizers
 import data
 
-class MultiSegtrainer(pl.LightningModule):
+class MultiDecoderSegtrainer(pl.LightningModule):
     def __init__(
         self, model_name: str, model_dict: dict,
     ):

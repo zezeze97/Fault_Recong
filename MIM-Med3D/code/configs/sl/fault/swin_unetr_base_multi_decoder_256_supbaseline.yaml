@@ -81,7 +81,7 @@ trainer:
   multiple_trainloader_mode: max_size_cycle
   # stochastic_weight_avg: false
 model:
-  class_path: __main__.MultiSegtrainer
+  class_path: __main__.MultiDecoderSegtrainer
   init_args:
     model_name: swin_unetr_multi_decoder
     model_dict:

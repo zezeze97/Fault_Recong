@@ -1,4 +1,5 @@
 from multi_seg_main import MultiSegtrainer
+from seg_multi_decoder_main import MultiDecoderSegtrainer
 import yaml
 from pytorch_lightning import Trainer
 from data.Fault_dataset import FaultDataset
@@ -182,7 +183,11 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
         os.makedirs(output_path)
         
     # init model
-    model = MultiSegtrainer(**config['model']['init_args'])
+    model_name = config['model']['model_name']
+    if model_name == 'swin_unetr_multi_decoder':
+        model = MultiDecoderSegtrainer(**config['model']['init_args'])
+    else:
+        model = MultiSegtrainer(**config['model']['init_args'])
     model.load_state_dict(torch.load(ckpt_path, map_location=device)["state_dict"])
     model.to(device)
     model.eval()
@@ -191,14 +196,7 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
     # mean=1.7283046245574951
     # std=6800.84033203125
     # data_preprocess = NormalizeIntensity(subtrahend=mean, divisor=std, nonzero=False, channel_wise=False)
-    if config['data']['init_args']['zoom']:
-        data_preprocess = Compose([Zoom(zoom=config['data']['init_args']['zoom_scale'], mode='area', keep_size=False),
-                                   NormalizeIntensity(nonzero=True, channel_wise=False)])
-        
-        data_postprocess = Zoom(zoom=[1.0 / scale for scale in config['data']['init_args']['zoom_scale']], mode='area', keep_size=False)
-        # data_postprocess = Zoom(zoom=[1.0, 3.0, 3.0], mode='area', keep_size=False)
-    else:
-        data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
+    data_preprocess = NormalizeIntensity(nonzero=True, channel_wise=False)
     
     # predict
     output_logits = np.zeros(seis.shape)
@@ -214,11 +212,13 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
             input = data_preprocess(seis_cube_crop)  
             input = input.unsqueeze(0) # batch size = 1
             # forward
-            logits = model(input.to(device))
+            if model_name == 'swin_unetr_multi_decoder':
+                logits = model(input.to(device))
+                logits = torch.mean(torch.stack(logits, dim=0), dim=0)
+            else:
+                logits = model(input.to(device))
             # post process
             logits = logits.squeeze(0) # move batch dim
-            if config['data']['init_args']['zoom']:
-                logits = data_postprocess(logits)
             logits = logits.squeeze(0) # move channel
             logits = logits.detach().cpu().numpy()
             # fill into origin pred

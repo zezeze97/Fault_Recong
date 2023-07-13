@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/usr/bin/env bash
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU40G
 #SBATCH --qos=low
