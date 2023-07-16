@@ -1,10 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/bash -l
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU40G
 #SBATCH --qos=low
-#SBATCH -J swin_unetr_base_multi_decoder
-#SBATCH --nodes=1          
+#SBATCH -J swin_unetr_base_multi_decoder_2x4
+#SBATCH --nodes=2          
 #SBATCH --cpus-per-task=8   
+#SBATCH --ntasks=8
 #SBATCH --ntasks-per-node=4
 #SBATCH --gres=gpu:4  
 #SBATCH --time=5-00:00:00

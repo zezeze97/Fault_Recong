@@ -158,24 +158,14 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
         config = yaml.load(f,Loader=yaml.FullLoader)
     
     # get slice builder 
-    if config['data']['init_args']['zoom']:
-        slice_builder = SliceBuilder(raw_dataset=seis,
-                                    label_dataset=None,
-                                    weight_dataset=None,
-                                    patch_shape=(128, 256, 256),
-                                    stride_shape=(64, 128, 128)
-                                    # patch_shape=(128, 384, 384),
-                                    # stride_shape=(64, 192, 192)
-                                    )
-    else:
-        slice_builder = SliceBuilder(raw_dataset=seis,
-                                    label_dataset=None,
-                                    weight_dataset=None,
-                                    patch_shape=(128, 128, 128),
-                                    stride_shape=(64, 64, 64)
-                                    # patch_shape=(256, 256, 256),
-                                    # stride_shape=(128, 128, 128)
-                                    )
+    slice_builder = SliceBuilder(raw_dataset=seis,
+                                label_dataset=None,
+                                weight_dataset=None,
+                                patch_shape=(128, 128, 128),
+                                stride_shape=(64, 64, 64)
+                                # patch_shape=(256, 256, 256),
+                                # stride_shape=(128, 128, 128)
+                                )
     crop_cubes_pos = slice_builder.raw_slices
     
     # create missing dir
@@ -183,7 +173,7 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
         os.makedirs(output_path)
         
     # init model
-    model_name = config['model']['model_name']
+    model_name = config['model']['init_args']['model_name']
     if model_name == 'swin_unetr_multi_decoder':
         model = MultiDecoderSegtrainer(**config['model']['init_args'])
     else:
