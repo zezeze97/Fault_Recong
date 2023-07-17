@@ -53,7 +53,7 @@ class SegCls_trainer(pl.LightningModule):
         batch_size = seg_logits.shape[0]
         for i in range(batch_size):
             if self.post_score_trans(cls_logits[i,:]) < 0.5:
-                seg_logits[i, :, :, :, :] = -99999.0 * torch.ones((seg_logits.shape[i, :, :, :, :]), device=seg_logits.device)
+                seg_logits[i, :, :, :, :] = -100.0 * torch.ones((seg_logits[i, :, :, :, :].shape), device=seg_logits.device)
         return seg_logits
 
     def generate_label_cls(self, labels_seg):
