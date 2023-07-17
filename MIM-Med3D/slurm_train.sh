@@ -2,7 +2,7 @@
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU40G
 #SBATCH --qos=low
-#SBATCH -J swin_unetr_base_multi_decoder_2x4
+#SBATCH -J swin_unetr_base_seg_cls_simmim_2x4
 #SBATCH --nodes=2          
 #SBATCH --cpus-per-task=8   
 #SBATCH --ntasks=8
