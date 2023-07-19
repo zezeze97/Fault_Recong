@@ -21,3 +21,4 @@ mmsegmentation/output
 *.npy
 temp.txt
 __pycache__/
+*.out

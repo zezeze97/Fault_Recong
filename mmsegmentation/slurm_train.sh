@@ -2,10 +2,10 @@
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU
 #SBATCH --qos=low
-#SBATCH -J SimMIM_Swin_4x8
-#SBATCH --nodes=4          
+#SBATCH -J swin_simmim1000e_ft
+#SBATCH --nodes=1          
 #SBATCH --cpus-per-task=2   
-#SBATCH --ntasks=32
+#SBATCH --ntasks=8
 #SBATCH --ntasks-per-node=8
 #SBATCH --gres=gpu:8  
 #SBATCH --time=5-00:00:00
