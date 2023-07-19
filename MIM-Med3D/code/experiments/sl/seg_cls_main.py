@@ -60,7 +60,7 @@ class SegCls_trainer(pl.LightningModule):
         batch_size = labels_seg.shape[0]
         labels_cls = torch.zeros((batch_size, 1), dtype=torch.float, device=labels_seg.device)
         for i in range(batch_size):
-            if torch.sum(labels_seg[i, :, :, :, :]) > 0.0:
+            if torch.sum(labels_seg[i, :, :, :, :]) >= 1.0:
                 labels_cls[i, :] = 1.0
         return labels_cls
 

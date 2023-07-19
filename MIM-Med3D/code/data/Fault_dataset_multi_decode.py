@@ -91,7 +91,7 @@ class Fault_Multi_Decode(Dataset):
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(mask.shape)
             for idx in range(mask.shape[0]):
-                dilate_mask[idx, :, :] = cv2.dilate(mask[idx, :, :], kernel=self.dilate_kernel, iterations=i)
+                dilate_mask[idx, :, :] = cv2.dilate(mask[idx, :, :], kernel=self.dilate_kernel, iterations=i*2) # iterations=i
             labels.append(dilate_mask)
         labels = np.stack(labels, axis=0)
     
