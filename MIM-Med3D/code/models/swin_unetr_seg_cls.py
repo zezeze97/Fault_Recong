@@ -301,7 +301,7 @@ class SwinUNETR_Seg_Cls(nn.Module):
 
     def forward(self, x_in):
         hidden_states_out = self.swinViT(x_in, self.normalize)
-        cls_logits = self.cls_out(hidden_states_out[4].flatten(1, -1))
+        cls_logits = self.cls_out(hidden_states_out[4].clone().flatten(1, -1))
         enc0 = self.encoder1(x_in)
         enc1 = self.encoder2(hidden_states_out[0])
         enc2 = self.encoder3(hidden_states_out[1])

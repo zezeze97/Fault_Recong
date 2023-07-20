@@ -4,8 +4,8 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: ./output
-      name: Fault_Finetuning
-      version: swin_unetr_base_seg_cls_simmim100e_p16_public_256_flip_rotate_aug_2x4
+      name: Fault_Baseline
+      version: swin_unetr_base_seg_cls_supbaseline_p16_public_256_flip_rotate_aug_4x4
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -27,7 +27,7 @@ trainer:
   gradient_clip_val: null
   gradient_clip_algorithm: null
   # process_position: 0
-  num_nodes: 2
+  num_nodes: 4
   devices: -1
   accelerator: gpu
   # auto_select_gpus: false
@@ -100,8 +100,8 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75/checkpoints/best.ckpt
-      revise_keys: [['model.encoder.', '']]
+      pretrained: null
+      revise_keys: []
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
