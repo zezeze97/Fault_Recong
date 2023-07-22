@@ -6,11 +6,27 @@ SAVE_ROOT_PATH=$3
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/public_data/precessed/test/seis/seistest.npy \
+                                        --save_path $SAVE_ROOT_PATH/thebe_pred/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:0 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy \
+                                        --save_path $SAVE_ROOT_PATH/real_labeled_pred/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:1 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
                                         --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/Ordos/gjb/seis/L500_1500_T500_2000_aa_pstm_0922_cg.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/Ordos/gjb/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:0 &
+                                        --device cuda:2 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -18,7 +34,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/Ordos/pl/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:1 &
+                                        --device cuda:3 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -26,7 +42,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/Ordos/yw/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:2 &
+                                        --device cuda:4 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -34,7 +50,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/qyb/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:3 &
+                                        --device cuda:5 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -42,7 +58,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/chahetai/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:4 &
+                                        --device cuda:6 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -50,7 +66,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/gyx/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:5 &
+                                        --device cuda:7 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -58,7 +74,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/mig1100_1700/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:6 &
+                                        --device cuda:0 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -66,7 +82,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/moxi/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:7 &
+                                        --device cuda:1 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -74,7 +90,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/n2n3_small/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:0 &
+                                        --device cuda:2 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -82,7 +98,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/PXZL/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:1 &
+                                        --device cuda:3 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -90,7 +106,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/QK/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:2 &
+                                        --device cuda:4 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -98,7 +114,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/sc/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:3 &
+                                        --device cuda:5 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -106,7 +122,7 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/sudan/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:4 &
+                                        --device cuda:6 &
 
 python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -114,5 +130,5 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/yc/\
                                         --predict_type 3d \
                                         --force_3_chan True \
-                                        --device cuda:5 &
+                                        --device cuda:7 &
 
