@@ -32,25 +32,25 @@ python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/labeled/Ordos/yw/seis/mig.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/Ordos/yw/ \
-                                        --device cuda:0 &
+                                        --device cuda:4 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/labeled/qyb/seis/20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/labeled/qyb/\
-                                        --device cuda:1 &
+                                        --device cuda:5 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/chahetai/chjSmall_mig.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/chahetai/ \
-                                        --device cuda:2 &
+                                        --device cuda:6 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/gyx/GYX-small_converted.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/gyx/ \
-                                        --device cuda:3 &
+                                        --device cuda:7 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
@@ -80,23 +80,23 @@ python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/QK/RDC-premig.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/QK/ \
-                                        --device cuda:0 &
+                                        --device cuda:4 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/sc/mig-small.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/sc/ \
-                                        --device cuda:1 &
+                                        --device cuda:5 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/sudan/Fara_El_Harr.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/sudan/ \
-                                        --device cuda:2 &
+                                        --device cuda:6 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/project_data_v1/unlabeled/yc/seis.sgy \
                                         --save_path $SAVE_ROOT_PATH/project_data_v1_pred/unlabeled/yc/ \
-                                        --device cuda:3 &
+                                        --device cuda:7 &
 
