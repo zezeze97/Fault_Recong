@@ -13,7 +13,7 @@ python ./code/experiments/sl/predict.py --config $CONFIG \
 python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy \
-                                        --save_path $SAVE_ROOT_PATH/real_labeled_pred/ \ 
+                                        --save_path $SAVE_ROOT_PATH/real_labeled_pred/ \
                                         --device cuda:1 &
 
 python ./code/experiments/sl/predict.py --config $CONFIG \
