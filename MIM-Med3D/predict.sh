@@ -4,7 +4,7 @@ CONFIG=$1
 CKPTS=$2
 SAVE_ROOT_PATH=$3
 
-python ./projects/Fault_recong/predict.py --config $CONFIG \
+python ./code/experiments/sl/predict.py --config $CONFIG \
                                         --checkpoint $CKPTS \
                                         --input ../Fault_data/public_data/precessed/test/seis/seistest.npy \
                                         --save_path $SAVE_ROOT_PATH/thebe_pred/ \
