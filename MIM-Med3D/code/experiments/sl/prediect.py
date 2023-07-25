@@ -211,7 +211,7 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
             elif model_name == 'swin_unetr_seg_cls':
                 seg_logits, cls_logits = model(input.to(device)) # batch size == 1
                 if model.post_score_trans(cls_logits[0,:]) < 0.5:
-                    seg_logits = -100.0 * torch.ones((seg_logits.shape), device=seg_logits.device)
+                    seg_logits = -1000.0 * torch.ones((seg_logits.shape), device=seg_logits.device)
                 logits = seg_logits
             else:
                 logits = model(input.to(device))
