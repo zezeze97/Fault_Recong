@@ -223,9 +223,9 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
             output_logits[x_range, y_range, z_range] += logits
             count_mat[x_range, y_range, z_range] += 1
     output_logits /= count_mat
-    output_pred = model.post_trans(output_logits).cpu().numpy()
+    # output_pred = model.post_trans(output_logits).cpu().numpy()
     output_score = model.post_score_trans(output_logits).cpu().numpy()
-    np.save(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'_pred.npy'), output_pred)
+    # np.save(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'_pred.npy'), output_pred)
     np.save(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'_score.npy'), output_score)
     
    #  with h5py.File(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'.h5'), 'w') as f:
