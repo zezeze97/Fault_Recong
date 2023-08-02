@@ -30,7 +30,7 @@ def predict_3d(config_file, checkpoint_file, input_cube, save_path, device='cuda
         image = input_cube
     
     print('start predict')
-    predict = []
+    # predict = []
     prob = []
     for i in tqdm(range(image.shape[0])):
         image_slice = image[i, :, :]
@@ -41,15 +41,15 @@ def predict_3d(config_file, checkpoint_file, input_cube, save_path, device='cuda
             image_future = image[min(i + step, image.shape[0]-1), :, :]
             image_slice = np.stack([image_prev, image_slice, image_future], axis=2)
         result = inference_model(model, image_slice.copy())
-        predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
+        # predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
         prob.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
-    predict = np.stack(predict, axis=0)
+    # predict = np.stack(predict, axis=0)
     prob = np.stack(prob, axis=0)
     
     print('saving result....')
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    np.save(os.path.join(save_path, 'predict.npy'), predict)
+    # np.save(os.path.join(save_path, 'predict.npy'), predict)
     np.save(os.path.join(save_path, 'score.npy'), prob)
 
 
