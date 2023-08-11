@@ -150,19 +150,41 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step):
     
 
 if __name__ == '__main__':
+    convert_2d_sl(root_dir='./Fault_data/project_data_v2/GYX',
+                  seis_name='GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy',
+                  fault_name='faults.sgy',
+                  start_id=7,
+                  end_id=916,
+                  step=8)
+    convert_2d_sl(root_dir='./Fault_data/project_data_v2/LH3D',
+                  seis_name='TJ-2022-6-15-pstm-cg.sgy',
+                  fault_name='faults.sgy',
+                  start_id=4,
+                  end_id=701,
+                  step=8)
+    convert_2d_sl(root_dir='./Fault_data/project_data_v2/ZG3D',
+                  seis_name='yanfa__ZG3d_PSTM_CG_0715-small.sgy',
+                  fault_name='faults.sgy',
+                  start_id=4,
+                  end_id=1101,
+                  step=8)
+
+
+
+
     '''
-    unlabeled_root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/unlabeled'
-    dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
-    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small_converted.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    unlabeled_root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2'
+    dir_name_lst = ['dafeng1', 'gaojiapu', 'guai3east', 'GYX', 'LH3D', 'madonglianpian', 'moxi', 'pingliang', 'ZG3D']
+    seis_name_lst = ['C06_DF1J_OVT_PSTM_GAIN_TJ20220704_-1.sgy', 'gjp_seis.sgy', 'PSTM_gain_20141128_shift1080ms_16f_111.sgy', 'GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy', 'TJ-2022-6-15-pstm-cg.sgy', 'PSTM_gain_20230324_shift1000ms_1.sgy', 'moxi_seisl_converted.sgy', 'pingliang_seis_converted.sgy', 'yanfa__ZG3d_PSTM_CG_0715-small.sgy']
     for i, dir_name in enumerate(dir_name_lst): 
         root_dir = os.path.join(unlabeled_root_dir, dir_name)
         print(f'Processing {root_dir}')
         convert_2d_ssl(root_dir, seis_name_lst[i])
     
-    root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/qyb'
-    seis_name = '20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy'
-    convert_2d_ssl(root_dir, seis_name)
-    '''
+    # root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/qyb'
+    # seis_name = '20230412_QY-PSTM-STK-CG-TO-DIYAN.sgy'
+    # convert_2d_ssl(root_dir, seis_name)
+    
     root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v1/labeled/Ordos/yw'
     seis_name = 'mig.sgy'
     fault_name = 'fault_volume_converted.sgy'
@@ -170,3 +192,4 @@ if __name__ == '__main__':
     end_id = 673
     step = 8
     convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step)
+    '''
