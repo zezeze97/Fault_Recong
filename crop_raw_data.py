@@ -106,14 +106,16 @@ def dat2h5():
     
 
 def crop_unlabeled_data(root_dir):
-    dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
-    seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small_converted.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    # dir_name_lst = ['chahetai', 'gyx', 'mig1100_1700', 'moxi', 'n2n3_small', 'PXZL', 'QK', 'sc', 'sudan', 'yc']
+    # seis_name_lst = ['chjSmall_mig.sgy', 'GYX-small_converted.sgy', 'mig1100_1700.sgy', 'Gst_lilei-small.sgy', 'n2n3.sgy', 'PXZL.sgy', 'RDC-premig.sgy', 'mig-small.sgy', 'Fara_El_Harr.sgy', 'seis.sgy']
+    dir_name_lst = ['dafeng1', 'gaojiapu', 'guai3east', 'GYX', 'LH3D', 'madonglianpian', 'moxi', 'pingliang', 'ZG3D']
+    seis_name_lst = ['seis/C06_DF1J_OVT_PSTM_GAIN_TJ20220704_-1.sgy', 'gjp_seis.sgy', 'seis/PSTM_gain_20141128_shift1080ms_16f_111.sgy', 'seis/GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy', 'seis/TJ-2022-6-15-pstm-cg.sgy', 'seis/PSTM_gain_20230324_shift1000ms_1.sgy', 'moxi_seisl_converted.sgy', 'pingliang_seis_converted.sgy', 'seis/yanfa__ZG3d_PSTM_CG_0715-small.sgy']
     for idx, item in enumerate(dir_name_lst):
         print(f'loading {item}')
         try:
             seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx]))
             get_slice_unlabeled(seis=seis, 
-                                save_path=os.path.join(root_dir, item, 'crop_128'),
+                                save_path=os.path.join(root_dir, item, 'crop_128_ssl'),
                                 patch_shape=(128, 128, 128),
                                 stride_shape=(64, 64, 64),
                                 ratio=0.8)    
@@ -226,7 +228,7 @@ class SliceBuilder:
         assert patch_shape[1] >= 64 and patch_shape[2] >= 64, 'Height and Width must be greater or equal 64'
     
 if __name__ == '__main__':
-    dat2h5()
+    # dat2h5()
     # crop_unlabeled_data(root_dir='./Fault_data/project_data_v1/unlabeled')
     '''
     root_dir_lst = ['/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/qyb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/gjb', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/pl', '/home/zhangzr/FaultRecongnition/Fault_data/project_data_v1/labeled/Ordos/yw', '/home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/origin_data']
@@ -235,7 +237,7 @@ if __name__ == '__main__':
         print(f'loading {root_dir}')
         crop_labeled_data_ssl(root_dir, seis_name_lst[i])
     '''
-    
+    crop_unlabeled_data(root_dir='./Fault_data/project_data_v2')
 
     
 
