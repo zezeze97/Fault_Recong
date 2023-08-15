@@ -16,7 +16,7 @@ def load_gt_boundaries(sample_name):
     return gt
 
 def load_pred(sample_name):
-    pred = prediction[sample_name, :, :]
+    pred = prediction[sample_name, :, :].astype(np.float32)
     pred = cv2.resize(pred,(w_s,h_s))
     return pred
 
