@@ -45,6 +45,8 @@ def predict_3d(config_file, checkpoint_file, input_cube, save_path, device='cuda
         prob.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
     # predict = np.stack(predict, axis=0)
     prob = np.stack(prob, axis=0)
+    # convert to float 16
+    prob = prob.astype(np.float16)
     
     print('saving result....')
     if not os.path.exists(save_path):

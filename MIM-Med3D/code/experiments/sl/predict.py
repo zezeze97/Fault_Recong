@@ -225,6 +225,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
     output_logits /= count_mat
     # output_pred = model.post_trans(output_logits).cpu().numpy()
     output_score = model.post_score_trans(output_logits).cpu().numpy()
+    # convert to float 16
+    output_score = output_score.astype(np.float16)
     # np.save(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'_pred.npy'), output_pred)
     np.save(os.path.join(output_path, input_path.split('/')[-1].split('.')[0]+'_score.npy'), output_score)
     

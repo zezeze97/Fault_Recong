@@ -132,3 +132,27 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --force_3_chan True \
                                         --device cuda:7 &
 
+# add v2
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/GYX/seis/GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/GYX/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:0 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/LH3D/seis/TJ-2022-6-15-pstm-cg.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/LH3D/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:1 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/ZG3D/seis/yanfa__ZG3d_PSTM_CG_0715-small.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/ZG3D/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:2 &
