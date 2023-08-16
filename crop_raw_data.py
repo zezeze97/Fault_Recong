@@ -113,7 +113,7 @@ def crop_unlabeled_data(root_dir):
     for idx, item in enumerate(dir_name_lst):
         print(f'loading {item}')
         try:
-            seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx]))
+            seis = segyio.tools.cube(os.path.join(root_dir, item, seis_name_lst[idx])).astype(np.float16)
             get_slice_unlabeled(seis=seis, 
                                 save_path=os.path.join(root_dir, item, 'crop_128_ssl'),
                                 patch_shape=(128, 128, 128),
