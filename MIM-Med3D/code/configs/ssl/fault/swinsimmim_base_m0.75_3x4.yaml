@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Pretrained
-      version: swinsimmim_base_m0.75_500e_mix_v2
+      version: swinsimmim_base_m0.75_500e_mix_v2_3x4
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -26,7 +26,7 @@ trainer:
   gradient_clip_val: null
   gradient_clip_algorithm: null
   # process_position: 0
-  num_nodes: 4
+  num_nodes: 3
   devices: -1
   accelerator: gpu
   # auto_select_gpus: false
