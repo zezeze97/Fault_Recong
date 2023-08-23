@@ -2,7 +2,7 @@
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU
 #SBATCH --qos=low
-#SBATCH -J swin_simmim1000e_new_dilate
+#SBATCH -J swin_simmim2000e_new_dilate
 #SBATCH --nodes=1          
 #SBATCH --cpus-per-task=2   
 #SBATCH --ntasks=8
