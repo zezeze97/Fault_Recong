@@ -327,7 +327,7 @@ class SwinUNETR_Multi_Decoder_Fusion(nn.Module):
             out = self.decoder1_lst[k](dec0, enc0)
             logits = self.out_lst[k](out)
             output.append(logits)
-        concat_output = torch.concat(output, dim=1).detach()
+        concat_output = torch.concat(output, dim=1).clone().detach()
         fusion_output = self.fusion_layer(concat_output)
         return output, fusion_output
 
