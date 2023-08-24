@@ -206,3 +206,4 @@ default_hooks = dict(
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='SegVisualizationHook'))
 launcher = 'pytorch'
+find_unused_parameters=True
