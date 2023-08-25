@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetuning
-      version: swin_unetr_base_simmim500e_new_pretrain_new_ft_p16_public_256_flip_rotate_aug_4x4
+      version: swin_unetr_base_simmim250e_new_pretrain_p16_public_256_flip_rotate_aug_4x4
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -23,9 +23,6 @@ trainer:
       init_args:
         logging_interval: step
     - class_path: pytorch_lightning.callbacks.RichProgressBar
-    - class_path: finetuner.Fault_3D_FT.SwinTransformerFinetuner
-      init_args:
-        unfreeze_at_epoch: 800
   default_root_dir: ./output
   gradient_clip_val: null
   gradient_clip_algorithm: null
@@ -84,7 +81,7 @@ trainer:
   multiple_trainloader_mode: max_size_cycle
   # stochastic_weight_avg: false
 model:
-  class_path: __main__.MultiSegFinetuner
+  class_path: __main__.MultiSegtrainer
   init_args:
     model_name: swin_unetr
     model_dict:
@@ -103,16 +100,8 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_500e_mix_v2/checkpoints/best.ckpt
+      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_250e_mix_v2/checkpoints/best.ckpt
       revise_keys: [['model.encoder.', '']]
-    optimizer_name: AdamW
-    optimizer_dict:
-      lr: 0.0003
-      weight_decay: 0.05
-    lr_scheduler_dict:
-      warmup_epochs: 100
-      max_epochs: 1000
-      eta_min: 0.0001
 data:
   class_path: data.Fault_dataset.FaultDataset
   init_args:
@@ -122,4 +111,15 @@ data:
     val_batch_size: 1
     num_workers: 8
     dist: true
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 0.0003
+    weight_decay: 0.05
+lr_scheduler:
+  class_path: optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
+  init_args:
+    warmup_epochs: 100
+    max_epochs: 1000
+    eta_min: 0.0001
 ckpt_path: null

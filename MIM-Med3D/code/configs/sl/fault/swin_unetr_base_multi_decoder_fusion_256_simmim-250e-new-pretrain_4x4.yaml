@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetuning
-      version: swin_unetr_base_simmim500e_new_pretrain_p16_public_256_flip_rotate_aug_4x4
+      version: swin_unetr_base_multi_decoder_fusion_simmim250e_new_pretrain_p16_public_256_flip_rotate_aug_4x4
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -53,7 +53,7 @@ trainer:
   val_check_interval: 1.0
   # flush_logs_every_n_steps: null
   log_every_n_steps: 5
-  strategy:
+  strategy: 
     class_path: pytorch_lightning.strategies.DDPStrategy
     init_args: 
       find_unused_parameters: false
@@ -81,9 +81,9 @@ trainer:
   multiple_trainloader_mode: max_size_cycle
   # stochastic_weight_avg: false
 model:
-  class_path: __main__.MultiSegtrainer
+  class_path: __main__.MultiDecoderFusionSegtrainer
   init_args:
-    model_name: swin_unetr
+    model_name: swin_unetr_multi_decoder_fusion
     model_dict:
       img_size: [128, 128, 128]
       in_channels: 1
@@ -100,17 +100,18 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_500e_mix_v2/checkpoints/best.ckpt
+      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_250e_mix_v2/checkpoints/best.ckpt
       revise_keys: [['model.encoder.', '']]
+      num_decoder: 3
 data:
-  class_path: data.Fault_dataset.FaultDataset
+  class_path: data.Fault_dataset_multi_decode.FaultDataset_Multi_Decode
   init_args:
-    is_ssl: false
     labeled_data_root_dir_lst: ['../Fault_data/public_data/crop_256']
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
     dist: true
+    num_decoder: 3
 optimizer:
   class_path: torch.optim.AdamW
   init_args:
