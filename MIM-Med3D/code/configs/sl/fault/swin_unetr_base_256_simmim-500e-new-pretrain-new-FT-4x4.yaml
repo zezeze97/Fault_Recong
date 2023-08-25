@@ -103,8 +103,8 @@ model:
       spatial_dims: 3
       downsample: merging
       use_v2: false
-      # pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_500e_mix_v2/checkpoints/best.ckpt
-      # revise_keys: [['model.encoder.', '']]
+      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/swinsimmim_base_m0.75_500e_mix_v2/checkpoints/best.ckpt
+      revise_keys: [['model.encoder.', '']]
     optimizer_name: AdamW
     optimizer_dict:
       lr: 0.0003
