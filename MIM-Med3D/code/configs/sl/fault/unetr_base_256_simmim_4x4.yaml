@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetuning
-      version: unetr_base_simmim_p16_public_256_flip_rotate_aug
+      version: unetr_base_simmim_p16_public_256_flip_rotate_aug_4x4
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
@@ -27,7 +27,7 @@ trainer:
   gradient_clip_val: null
   gradient_clip_algorithm: null
   # process_position: 0
-  num_nodes: 1
+  num_nodes: 4
   devices: -1
   accelerator: gpu
   # auto_select_gpus: false
@@ -85,7 +85,7 @@ model:
   init_args:
     model_name: unetr_base
     model_dict:
-      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/vitsimmim_base_m0.75_300e/checkpoints/best.ckpt
+      pretrained: /lustre/home/2001110054/Fault_Recong/MIM-Med3D/output/Fault_Pretrained/vitsimmim_base_m0.75_300e_mix_v2/checkpoints/best.ckpt
       in_channels: 1
       out_channels: 1
       img_size: [128, 128, 128]
