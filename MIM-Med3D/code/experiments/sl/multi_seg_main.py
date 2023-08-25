@@ -1,3 +1,4 @@
+from typing import Any
 from monai.losses import DiceCELoss, DiceLoss
 from monai.inferers import sliding_window_inference
 # from monai.metrics import DiceMetric
@@ -14,6 +15,7 @@ from models import UNETR, SwinUNETR
 from metrics import dice_coefficient_batch, compute_acc_batch, compute_f1_batch
 import optimizers
 import data
+import finetuner
 
 class MultiSegtrainer(pl.LightningModule):
     def __init__(
@@ -212,7 +214,23 @@ class MultiSegtrainer(pl.LightningModule):
 
         return outputs_pred
         
+class MultiSegFinetuner(MultiSegtrainer):
+    def __init__(self, model_name: str, model_dict: dict, optimizer_name: str, optimizer_dict: dict, lr_scheduler_dict: dict):
+        super().__init__(model_name, model_dict)
+        self.optimizer_name = optimizer_name
+        self.optimizer_dict = optimizer_dict
+        self.lr_scheduler_dict = lr_scheduler_dict
+    
+    def configure_optimizers(self):
+        if self.optimizer_name == 'AdamW':
+            optimizer = torch.optim.AdamW(params=filter(lambda p: p.requires_grad, self.model.parameters()), **self.optimizer_dict)
+            lr_scheduler = optimizers.LinearWarmupCosineAnnealingLR(optimizer, **self.lr_scheduler_dict)
+        else:
+            raise NotImplementedError
+        
+        return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
+        
 
 if __name__ == "__main__":
     cli = LightningCLI(save_config_kwargs={'overwrite': True})
