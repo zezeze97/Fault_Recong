@@ -30,7 +30,7 @@ trainer:
   gradient_clip_val: null
   gradient_clip_algorithm: null
   # process_position: 0
-  num_nodes: 1
+  num_nodes: 4
   devices: -1
   accelerator: gpu
   # auto_select_gpus: false
