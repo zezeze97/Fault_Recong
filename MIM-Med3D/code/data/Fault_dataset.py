@@ -131,7 +131,36 @@ class Fault_Simple(Dataset):
                                 'image_name': self.data_lst[index]})
 
 
+class Fault_Simulate(Dataset):
+    def __init__(self, root_dir, split=None, mean=None, std=None):
+        self.root_dir = os.path.join(root_dir, split)
+        self.data_lst = os.listdir(os.path.join(self.root_dir, 'seis'))
+        self.split = split
+        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                    RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                    NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+                                    ])
+        self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+    
+    def __len__(self):
+        return len(self.data_lst)
+    
+    def __getitem__(self, index):
+        seis = np.fromfile(os.path.join(self.root_dir, 'seis', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        if self.split == 'train':
+            return self.train_transform({'image': torch.from_numpy(seis).unsqueeze(0),
+                                         'label': torch.from_numpy(fault).unsqueeze(0),
+                                         'image_name': self.data_lst[index]})
+        elif self.split == 'validation':
+            return self.val_transform({'image': torch.from_numpy(seis).unsqueeze(0),
+                                         'label': torch.from_numpy(fault).unsqueeze(0),
+                                         'image_name': self.data_lst[index]})
 
+        
+        
 
 class FaultDataset(pl.LightningDataModule):
     def __init__(
@@ -140,6 +169,7 @@ class FaultDataset(pl.LightningDataModule):
         zoom=False,
         zoom_scale=None,
         dilate=False,
+        simulate_data_root_dir=None,
         unlabeled_data_root_dir_lst=None,
         labeled_data_root_dir_lst=None,
         test_data_root_dir=None,
@@ -153,6 +183,7 @@ class FaultDataset(pl.LightningDataModule):
         self.zoom = zoom
         self.zoom_scale = zoom_scale
         self.dilate = dilate
+        self.simulate_data_root_dir = simulate_data_root_dir
         self.test_data_root_dir = test_data_root_dir
         self.unlabeled_data_root_dir_lst = unlabeled_data_root_dir_lst
         self.labeled_data_root_dir_lst = labeled_data_root_dir_lst
@@ -176,7 +207,10 @@ class FaultDataset(pl.LightningDataModule):
                 for data_root_dir in self.labeled_data_root_dir_lst:
                     train_ds.append(Fault(root_dir=data_root_dir, split='train', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
                     valid_ds.append(Fault(root_dir=data_root_dir, split='val', is_ssl=self.is_ssl, zoom=self.zoom, zoom_scale=self.zoom_scale, dilate=self.dilate))
-                
+            
+            if self.simulate_data_root_dir is not None:
+                train_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='train'))
+                valid_ds.append(Fault_Simulate(root_dir=self.simulate_data_root_dir, split='validation'))
                 
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
