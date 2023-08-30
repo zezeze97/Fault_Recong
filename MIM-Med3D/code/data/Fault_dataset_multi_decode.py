@@ -32,6 +32,44 @@ from monai.transforms import (
     Zoomd
 )
 
+class Fault_Simulate_Multi_Decode(Dataset):
+    def __init__(self, root_dir, split=None, mean=None, std=None, num_decoder=3):
+        self.root_dir = os.path.join(root_dir, split)
+        self.data_lst = os.listdir(os.path.join(self.root_dir, 'seis'))
+        self.split = split
+        self.num_decoder = num_decoder
+        self.dilate_kernel = np.ones((3,3), dtype=np.uint8)
+        self.train_transform = Compose([RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                    RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                    RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                    NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+                                    ])
+        self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+    
+    def __len__(self):
+        return len(self.data_lst)
+    
+    def __getitem__(self, index):
+        seis = np.fromfile(os.path.join(self.root_dir, 'seis', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        labels = [fault]
+        for i in range(1, self.num_decoder):
+            dilate_mask = np.zeros(fault.shape)
+            for idx in range(fault.shape[0]):
+                dilate_mask[idx, :, :] = cv2.dilate(fault[idx, :, :], kernel=self.dilate_kernel, iterations=i*2) # iterations=i
+            labels.append(dilate_mask)
+        labels = np.stack(labels, axis=0)
+        if self.split == 'train':
+            return self.train_transform({'image': torch.from_numpy(seis).unsqueeze(0),
+                                         'label': torch.from_numpy(labels),
+                                         'image_name': self.data_lst[index]})
+        elif self.split == 'validation':
+            return self.val_transform({'image': torch.from_numpy(seis).unsqueeze(0),
+                                         'label': torch.from_numpy(labels),
+                                         'image_name': self.data_lst[index]})
+
+        
 
 class Fault_Simple(Dataset):
     def __init__(self, root_dir):
@@ -109,6 +147,7 @@ class Fault_Multi_Decode(Dataset):
 class FaultDataset_Multi_Decode(pl.LightningDataModule):
     def __init__(
         self,
+        simulate_data_root_dir=None,
         labeled_data_root_dir_lst=None,
         test_data_root_dir=None,
         batch_size: int = 1,
@@ -118,6 +157,7 @@ class FaultDataset_Multi_Decode(pl.LightningDataModule):
         num_decoder = 3,
     ):
         super().__init__()
+        self.simulate_data_root_dir = simulate_data_root_dir
         self.test_data_root_dir = test_data_root_dir
         self.labeled_data_root_dir_lst = labeled_data_root_dir_lst
         self.batch_size = batch_size
@@ -138,7 +178,9 @@ class FaultDataset_Multi_Decode(pl.LightningDataModule):
                     train_ds.append(Fault_Multi_Decode(root_dir=data_root_dir, split='train', num_decoder=self.num_decoder))
                     valid_ds.append(Fault_Multi_Decode(root_dir=data_root_dir, split='val', num_decoder=self.num_decoder))
                 
-                
+            if self.simulate_data_root_dir is not None:
+                train_ds.append(Fault_Simulate_Multi_Decode(root_dir=self.simulate_data_root_dir, split='train', num_decoder=self.num_decoder))
+                valid_ds.append(Fault_Simulate_Multi_Decode(root_dir=self.simulate_data_root_dir, split='validation', num_decoder=self.num_decoder))
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
           
