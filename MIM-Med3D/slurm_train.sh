@@ -2,7 +2,7 @@
 #SBATCH -o job.%j.out
 #SBATCH --partition=GPU40G
 #SBATCH --qos=high
-#SBATCH -J swin_unetr_base_256_simmim-250e-rerun
+#SBATCH -J swin_unetr_base_multi_decoder_fusion_256_simmim-500e_4x4
 #SBATCH --nodes=4          
 #SBATCH --cpus-per-task=16   
 #SBATCH --ntasks=16

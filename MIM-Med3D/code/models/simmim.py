@@ -349,8 +349,7 @@ class SwinSimMIM(nn.Module):
 
 
 if __name__ == "__main__":
-    import time
-    
+    from torchsummary import summary
     # config
     img_size = [128, 128, 128]
     in_channels = 1
@@ -387,17 +386,6 @@ if __name__ == "__main__":
                         pretrained,
                         revise_keys,
                         masking_ratio=0.75)
-    model.to(device)
-    loss_function = torch.nn.L1Loss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
-    model.train()
-    print('start training...')
-    t1 = time.time()
-    img = torch.randn(2, 1, 128, 128, 128).to(device)
-    pred_pixel_values, patches, batch_range, masked_indices = model(img)
-    loss = loss_function(pred_pixel_values, patches[batch_range, masked_indices,:])
-    loss.backward()
-    optimizer.step()
-    t2 = time.time()
-    print(f'finish training, using {t2-t1} s!')
+    summary(model, input_size=(1, 128, 128, 128), batch_size=-1)
+    
     # loss.step()
