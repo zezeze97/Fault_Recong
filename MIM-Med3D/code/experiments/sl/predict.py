@@ -1,5 +1,6 @@
 from multi_seg_main import MultiSegtrainer
 from seg_multi_decoder_main import MultiDecoderSegtrainer
+from seg_multi_decoder_fusion_main import MultiDecoderFusionSegtrainer
 from seg_cls_main import SegCls_trainer
 import yaml
 from pytorch_lightning import Trainer
@@ -179,6 +180,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
         model = MultiDecoderSegtrainer(**config['model']['init_args'])
     elif model_name == 'swin_unetr_seg_cls':
         model = SegCls_trainer(**config['model']['init_args'])
+    elif model_name == 'swin_unetr_multi_decoder_fusion':
+        model = MultiDecoderFusionSegtrainer(**config['model']['init_args'])
     else:
         model = MultiSegtrainer(**config['model']['init_args'])
     model.load_state_dict(torch.load(ckpt_path, map_location=device)["state_dict"])
@@ -205,14 +208,8 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
             input = data_preprocess(seis_cube_crop)  
             input = input.unsqueeze(0) # batch size = 1
             # forward
-            if model_name == 'swin_unetr_multi_decoder':
-                logits = model(input.to(device))
-                logits = torch.mean(torch.stack(logits, dim=0), dim=0)
-            elif model_name == 'swin_unetr_seg_cls':
-                seg_logits, cls_logits = model(input.to(device)) # batch size == 1
-                if model.post_score_trans(cls_logits[0,:]) < 0.5:
-                    seg_logits = -1000.0 * torch.ones((seg_logits.shape), device=seg_logits.device)
-                logits = seg_logits
+            if model_name in ['swin_unetr_multi_decoder', 'swin_unetr_seg_cls', 'swin_unetr_multi_decoder_fusion']:
+                logits = model.forward_test(input.to(device))
             else:
                 logits = model(input.to(device))
             # post process

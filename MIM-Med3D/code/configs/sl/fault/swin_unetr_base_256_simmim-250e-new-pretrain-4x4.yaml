@@ -5,7 +5,7 @@ trainer:
     init_args:
       save_dir: ./output
       name: Fault_Finetuning
-      version: swin_unetr_base_simmim250e_new_pretrain_p16_public_256_flip_rotate_aug_4x4
+      version: swin_unetr_base_simmim250e_new_pretrain_p16_public_256_flip_rotate_aug_4x4_rerun
       default_hp_metric: false
   # checkpoint_callback: null
   enable_checkpointing: true
