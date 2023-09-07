@@ -1,12 +1,12 @@
+from __future__ import annotations
 from typing import Union, Sequence
 import torch
 from torch import nn
 import torch.nn.functional as F
 from einops import repeat
-
 import numpy as np
 # from .swin_3d import SwinTransformer3D
-from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2
+from .swin_unetr import SwinTransformer, PatchMerging, PatchMergingV2, SwinUNETR
 # from monai.networks.layers import Conv
 from monai.networks.nets import ViT
 from mmengine.runner import load_checkpoint
@@ -348,11 +348,143 @@ class SwinSimMIM(nn.Module):
         return pred_pixel_values, patches, batch_range, masked_indices
 
 
+class SwinUNETR_SimMIM(nn.Module):
+    def __init__(
+        self,
+        img_size: Sequence[int],
+        in_channels: int,
+        out_channels: int,
+        depths: Sequence[int] = (2, 2, 2, 2),
+        num_heads: Sequence[int] = (3, 6, 12, 24),
+        feature_size: int = 24,
+        norm_name: tuple | str = "instance",
+        drop_rate: float = 0.0,
+        attn_drop_rate: float = 0.0,
+        dropout_path_rate: float = 0.0,
+        normalize: bool = True,
+        use_checkpoint: bool = False,
+        spatial_dims: int = 3,
+        downsample="merging",
+        use_v2=False,
+        masking_ratio=0.75,
+    ) -> None:
+        super().__init__()
+
+        self.img_size = ensure_tuple_rep(img_size, spatial_dims)
+        patch_size = ensure_tuple_rep(2, spatial_dims)
+        window_size = ensure_tuple_rep(7, spatial_dims)
+        # simulate origin vit patch size
+        self.mask_patch_size = (16, 16, 16)
+
+
+        if spatial_dims not in (2, 3):
+            raise ValueError("spatial dimension should be 2 or 3.")
+
+        for m, p in zip(self.img_size, patch_size):
+            for i in range(5):
+                if m % np.power(p, i + 1) != 0:
+                    raise ValueError("input image size (img_size) should be divisible by stage-wise image resolution.")
+
+        if not (0 <= drop_rate <= 1):
+            raise ValueError("dropout rate should be between 0 and 1.")
+
+        if not (0 <= attn_drop_rate <= 1):
+            raise ValueError("attention dropout rate should be between 0 and 1.")
+
+        if not (0 <= dropout_path_rate <= 1):
+            raise ValueError("drop path rate should be between 0 and 1.")
+
+        if feature_size % 12 != 0:
+            raise ValueError("feature_size should be divisible by 12.")
+        
+        assert (
+            masking_ratio > 0 and masking_ratio < 1
+        ), "masking ratio must be kept between 0 and 1"
+
+        self.SwinUNETR = SwinUNETR(img_size,
+                               in_channels,
+                               out_channels,
+                               depths,
+                               num_heads,
+                               feature_size,
+                               norm_name,
+                               drop_rate,
+                               attn_drop_rate,
+                               dropout_path_rate,
+                               normalize,
+                               use_checkpoint,
+                               spatial_dims,
+                               downsample,
+                               use_v2,
+                               pretrained=None,
+                               revise_keys=[])
+        self.masking_ratio = masking_ratio
+        self.mask_token = nn.Parameter(torch.randn(int(math.prod(self.mask_patch_size)*in_channels)))
+    def forward(self, img):
+        device = img.device
+
+        # get patches
+        patches = rearrange(
+            img,
+            "b c (d p1) (h p2) (w p3) -> b (d h w) (p1 p2 p3 c)",
+            p1=self.mask_patch_size[0],
+            p2=self.mask_patch_size[1],
+            p3=self.mask_patch_size[2],
+        ) # (B, num_patches, (p1 p2 p3 c))
+        
+        batch, num_patches, _ = patches.shape
+        # for indexing purposes
+        batch_range = torch.arange(batch, device=device)[:, None]
+        # prepare mask tokens
+        mask_patches = repeat(self.mask_token, "d -> b n d", b=batch, n=num_patches)
+        # calculate of patches needed to be masked, and get positions (indices) to be masked
+        num_masked = int(self.masking_ratio * num_patches)
+        masked_indices = (
+            torch.rand(batch, num_patches, device=device)
+            .topk(k=num_masked, dim=-1)
+            .indices
+        )
+        masked_bool_mask = (
+            torch.zeros((batch, num_patches), device=device)
+            .scatter_(-1, masked_indices, 1)
+            .bool()
+        )
+
+        # mask patches
+        masked_img_ = torch.where(masked_bool_mask[..., None], mask_patches, patches)
+        # recovering masked img
+        masked_img = rearrange(
+            masked_img_,
+            "b (d h w) (p1 p2 p3 c) -> b c (d p1) (h p2) (w p3)",
+            p1=self.mask_patch_size[0],
+            p2=self.mask_patch_size[1],
+            p3=self.mask_patch_size[2],
+            d=self.img_size[0]//self.mask_patch_size[0],
+            h=self.img_size[1]//self.mask_patch_size[1],
+            w=self.img_size[2]//self.mask_patch_size[2]
+        )
+
+        # forward SwinUNETR
+        pred_pixel_values_ = self.SwinUNETR(masked_img)
+        pred_pixel_values = rearrange(
+            pred_pixel_values_,
+            "b c (d p1) (h p2) (w p3) -> b (d h w) (p1 p2 p3 c)",
+            p1=self.mask_patch_size[0],
+            p2=self.mask_patch_size[1],
+            p3=self.mask_patch_size[2],)
+        pred_pixel_values = pred_pixel_values[batch_range, masked_indices]             
+        return pred_pixel_values, patches, batch_range, masked_indices
+        
+
+
+
+
 if __name__ == "__main__":
-    from torchsummary import summary
+    # from torchsummary import summary
     # config
     img_size = [128, 128, 128]
     in_channels = 1
+    out_channels = 1
     depths = [2, 2, 2, 2]
     num_heads = [3, 6, 12, 24]
     feature_size = 48
@@ -364,28 +496,30 @@ if __name__ == "__main__":
     spatial_dims = 3
     downsample = "merging"
     use_v2 = False
-    pretrained = None
-    revise_keys = []
+    masking_ratio=0.75
     
     # device = 'cuda:0'
     device = 'cpu'
     
-    model = SwinSimMIM(img_size,
-                        in_channels,
-                        depths,
-                        num_heads,
-                        feature_size,
-                        drop_rate,
-                        attn_drop_rate,
-                        dropout_path_rate,
-                        normalize,
-                        use_checkpoint,
-                        spatial_dims,
-                        downsample,
-                        use_v2,
-                        pretrained,
-                        revise_keys,
-                        masking_ratio=0.75)
-    summary(model, input_size=(1, 128, 128, 128), batch_size=-1)
+    model = SwinUNETR_SimMIM(img_size=img_size,
+                             in_channels=in_channels,
+                             out_channels=out_channels,
+                             depths=depths,
+                             num_heads=num_heads,
+                             feature_size=feature_size,
+                             drop_rate=drop_rate,
+                             attn_drop_rate=attn_drop_rate,
+                             normalize=normalize,
+                             use_checkpoint=use_checkpoint,
+                             spatial_dims=spatial_dims,
+                             downsample=downsample,
+                             use_v2=use_v2,
+                             masking_ratio=masking_ratio)
+    pred_pixel_values, patches, batch_range, masked_indices = model(torch.randn((2, 1, 128, 128, 128)))
+    print(f'pred_pixel_values {pred_pixel_values.shape}')
+    print(f'patches {patches.shape}')
+    print(f'batch_range: {batch_range}')
+    print(f'masked_indices {masked_indices}')
+    # summary(model, input_size=(1, 128, 128, 128), batch_size=-1)
     
     # loss.step()

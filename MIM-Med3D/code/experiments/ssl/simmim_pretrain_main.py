@@ -4,7 +4,7 @@ from pytorch_lightning.cli import LightningCLI
 
 import sys
 sys.path.insert(0, './code')
-from models import ViTSimMIM, SwinSimMIM
+from models import ViTSimMIM, SwinSimMIM, SwinUNETR_SimMIM
 from torch.nn import L1Loss
 import optimizers
 import data
@@ -23,6 +23,8 @@ class SimMIMtrainer(pl.LightningModule):
             self.model = ViTSimMIM(**model_dict)
         elif self.model_name == 'swinsimmim_base':
             self.model = SwinSimMIM(**model_dict)
+        elif self.model_name == 'swinunetr_simmim_base':
+            self.model = SwinUNETR_SimMIM(**model_dict)
 
         self.recon_loss = L1Loss()
         self.epoch_loss_values = []
