@@ -68,7 +68,8 @@ class SwinUNETR(nn.Module):
         downsample="merging",
         use_v2=False,
         pretrained=None,
-        revise_keys=[]
+        revise_keys=[],
+        overall_pretrained=None,
     ) -> None:
         """
         Args:
@@ -254,6 +255,19 @@ class SwinUNETR(nn.Module):
         )
 
         self.out = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
+        
+        if overall_pretrained is not None:
+            self.init_weight(overall_pretrained, revise_keys)
+    
+    def init_weight(self, weight_path, revise_keys):
+        print("load checkpoints from {}".format(weight_path))
+        load_checkpoint(
+            self,
+            filename=weight_path,
+            map_location="cpu",
+            strict=False,
+            revise_keys=revise_keys,
+        )
 
     def load_from(self, weights):
         with torch.no_grad():
