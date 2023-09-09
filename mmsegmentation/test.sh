@@ -156,3 +156,27 @@ python ./projects/Fault_recong/predict.py --config $CONFIG \
                                         --predict_type 3d \
                                         --force_3_chan True \
                                         --device cuda:2 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/madonglianpian/seis/PSTM_gain_20230324_shift1000ms_1.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/madonglianpian/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:3 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/dafeng1/seis/C06_DF1J_OVT_PSTM_GAIN_TJ20220704_-1.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/dafeng1/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:4 &
+
+python ./projects/Fault_recong/predict.py --config $CONFIG \
+                                        --checkpoint $CKPTS \
+                                        --input /gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2/guai3east/seis/PSTM_gain_20141128_shift1080ms_16f_111.sgy \
+                                        --save_path $SAVE_ROOT_PATH/project_data_v2_pred/guai3east/\
+                                        --predict_type 3d \
+                                        --force_3_chan True \
+                                        --device cuda:5 &
