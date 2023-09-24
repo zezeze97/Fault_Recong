@@ -62,6 +62,7 @@ class SwinUNETR_Multi_Decoder_Fusion(nn.Module):
         pretrained=None,
         revise_keys=[],
         num_decoder = 3,
+        overall_pretrained=None,
     ) -> None:
         """
         Args:
@@ -261,6 +262,34 @@ class SwinUNETR_Multi_Decoder_Fusion(nn.Module):
 
             self.out_lst.append(UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels))
             self.fusion_layer = UnetOutBlock(spatial_dims=spatial_dims, in_channels=num_decoder*out_channels, out_channels=out_channels)
+        if overall_pretrained is not None:
+            self.init_overall_pretrained(overall_pretrained, num_decoder)
+    
+    def init_overall_pretrained(self, ckpts_path, num_decoder):
+        print(f"Using SwinUNETR overall pretrained, loading ckpts from {ckpts_path}")
+        loaded_ckpts = torch.load(ckpts_path, map_location='cpu')['state_dict']
+        new_state_dict = {}
+        for k,v in loaded_ckpts.items():
+            # remove model.SwinUNETR.
+            new_key = k.replace('model.SwinUNETR.', '')
+            # encoder weights
+            if 'decoder' not in new_key and 'out.conv' not in new_key:
+                new_state_dict[new_key] = v
+            # decoder weights
+            if 'decoder' in new_key:
+                copyed_new_key = new_key
+                for i in range(num_decoder):
+                    add_new_key = copyed_new_key[:8] + f'_lst.{i}' + copyed_new_key[8:]
+                    new_state_dict[add_new_key] = v
+            if 'out.conv' in new_key:
+                copyed_new_key = new_key
+                for i in range(num_decoder):
+                    add_new_key = copyed_new_key[:3] + f'_lst.{i}' + copyed_new_key[3:]
+                    new_state_dict[add_new_key] = v
+
+        self.load_state_dict(new_state_dict, strict=False)
+                
+
 
     def load_from(self, weights):
         with torch.no_grad():
