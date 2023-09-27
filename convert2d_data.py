@@ -132,24 +132,50 @@ def convert_2d_ssl(root_dir, seis_name):
         seis_slice = seis_data[i, :, :]
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
 
-def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step):
+def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, convert_fault=False):
     dst_path = os.path.join(root_dir, '2d_slices_sl')
     if not os.path.exists(dst_path):
         os.makedirs(os.path.join(dst_path, 'train', 'image'))
         os.makedirs(os.path.join(dst_path, 'train', 'ann'))
-    seis = segyio.tools.cube(os.path.join(root_dir, 'seis', seis_name))
-    fault = segyio.tools.cube(os.path.join(root_dir, 'faults', fault_name))
+    # seis = segyio.tools.cube(os.path.join(root_dir, 'seis', seis_name))
+    # fault = segyio.tools.cube(os.path.join(root_dir, 'faults', fault_name))
+    seis = segyio.tools.cube(os.path.join(root_dir, seis_name))
+    fault = segyio.tools.cube(os.path.join(root_dir, fault_name))
     assert seis.shape == fault.shape
     print(f'shape is {seis.shape}')
     for i in tqdm(range(start_id, end_id, step)):
         seis_slice = seis[i, :, :]
         fault_slice = fault[i, :, :]
+        if convert_fault:
+            fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
         cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
-    
+
+def fault_pre_process(fault):
+    '''
+    input: fault, 2d fault
+    output: processed 2d fault
+    '''
+    shape = fault.shape
+    processed_fault = np.zeros(shape, dtype=np.uint8)
+    processed_fault[fault==2.0] = 1
+    processed_fault = processed_fault.astype(np.uint8)
+    return processed_fault
 
 if __name__ == '__main__':
+    convert_2d_sl(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/ODData/dafeng1/Export',
+                  seis_name='seis.sgy',
+                  fault_name='FaultVolume.sgy',
+                  start_id=0,
+                  end_id=1320,
+                  step=40,
+                  convert_fault=True)
+
+
+
+
+    '''
     convert_2d_sl(root_dir='./Fault_data/project_data_v2/GYX',
                   seis_name='GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy',
                   fault_name='faults.sgy',
@@ -169,10 +195,6 @@ if __name__ == '__main__':
                   end_id=1101,
                   step=8)
 
-
-
-
-    '''
     unlabeled_root_dir = '/gpfs/share/home/2001110054/Fault_Recong/Fault_data/project_data_v2'
     dir_name_lst = ['dafeng1', 'gaojiapu', 'guai3east', 'GYX', 'LH3D', 'madonglianpian', 'moxi', 'pingliang', 'ZG3D']
     seis_name_lst = ['C06_DF1J_OVT_PSTM_GAIN_TJ20220704_-1.sgy', 'gjp_seis.sgy', 'PSTM_gain_20141128_shift1080ms_16f_111.sgy', 'GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy', 'TJ-2022-6-15-pstm-cg.sgy', 'PSTM_gain_20230324_shift1000ms_1.sgy', 'moxi_seisl_converted.sgy', 'pingliang_seis_converted.sgy', 'yanfa__ZG3d_PSTM_CG_0715-small.sgy']
