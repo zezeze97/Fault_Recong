@@ -14,7 +14,10 @@ def ConvertScoreToSGY(score_path, th, save_path):
     print(f'Loading {score_path}')
     score = np.load(score_path)
     print('Start Convert')
-    prediction = (score > th).astype(np.float32)
+    # prediction = (score > th).astype(np.float32)
+    prediction = (score > th).astype(np.uint8)
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     save_file_path = os.path.join(save_path, f'prediction.bin')
     prediction.tofile(save_file_path)
     print(f'Saved converted file to {save_file_path}')
