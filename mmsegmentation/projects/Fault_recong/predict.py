@@ -10,6 +10,61 @@ from tqdm import tqdm
 import cv2
 
 
+def predict_3d_2directions(config_file, checkpoint_file, input_cube, save_path, device='cuda', force_3_chan=False):
+     # init model
+    model = init_model(config_file, checkpoint_file, device)
+    if device == 'cpu':
+        model = revert_sync_batchnorm(model)
+    
+    # load predict image cube
+    if isinstance(input_cube, str):
+        print(f'loading image: {input_cube}...')
+        if '.npy' in input_cube:
+            image = np.load(input_cube, mmap_mode='r')
+        elif '.sgy' in input_cube:
+            image = segyio.tools.cube(input_cube)
+        else:
+            raise TypeError
+    else:
+        image = input_cube
+    
+    print('start predict')
+    prob_inline = []
+    for i in tqdm(range(image.shape[0])):
+        image_slice = image[i, :, :]
+        if force_3_chan:
+            image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
+        result = inference_model(model, image_slice.copy())
+        # predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
+        prob_inline.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
+    # predict = np.stack(predict, axis=0)
+    prob_inline = np.stack(prob_inline, axis=0)
+    # convert to float 16
+    prob_inline = prob_inline.astype(np.float16)
+
+    prob_xline = []
+    for i in tqdm(range(image.shape[1])):
+        image_slice = image[:, i, :]
+        if force_3_chan:
+            image_slice = np.stack([image_slice, image_slice, image_slice], axis=2)
+        result = inference_model(model, image_slice.copy())
+        # predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
+        prob_xline.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
+    # predict = np.stack(predict, axis=0)
+    prob_xline = np.stack(prob_xline, axis=0)
+    # convert to float 16
+    prob_xline = prob_xline.astype(np.float16)
+
+    # fusion
+    prob = (prob_inline + prob_xline) / 2
+
+    
+    print('saving result....')
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    # np.save(os.path.join(save_path, 'predict.npy'), predict)
+    np.save(os.path.join(save_path, 'score.npy'), prob)
+
 def predict_3d(config_file, checkpoint_file, input_cube, save_path, device='cuda', force_3_chan=False, convert_25d=False, step=None):
     
     # init model
@@ -128,5 +183,7 @@ if __name__ == '__main__':
     save_path = args.save_path
     if args.predict_type == '3d':
         predict_3d(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=args.force_3_chan, convert_25d=args.convert_25d, step=args.step)
+    elif args.predict_type == '3d2directions':
+        predict_3d_2directions(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=args.force_3_chan)
     elif args.predict_type == '2d':
         predict_2d(config_file, checkpoint_file, input, save_path, device=args.device, force_3_chan=args.force_3_chan)
