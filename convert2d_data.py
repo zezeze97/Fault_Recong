@@ -144,8 +144,8 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
     assert seis.shape == fault.shape
     print(f'shape is {seis.shape}')
     for i in tqdm(range(start_id, end_id, step)):
-        seis_slice = seis[i, :, :]
-        fault_slice = fault[i, :, :]
+        seis_slice = seis[:, i, :]
+        fault_slice = fault[:, i, :]
         if convert_fault:
             fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
@@ -164,13 +164,13 @@ def fault_pre_process(fault):
     return processed_fault
 
 if __name__ == '__main__':
-    convert_2d_sl(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/ODData/dafeng1/Export',
+    convert_2d_sl(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/project_data_v3/guai3east',
                   seis_name='seis.sgy',
-                  fault_name='FaultVolume.sgy',
-                  start_id=0,
-                  end_id=1320,
-                  step=40,
-                  convert_fault=True)
+                  fault_name='guai3east_fault.sgy',
+                  start_id=24,
+                  end_id=814,
+                  step=32,
+                  convert_fault=False)
 
 
 
