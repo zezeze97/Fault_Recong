@@ -51,7 +51,7 @@ def predict_3d_2directions(config_file, checkpoint_file, input_cube, save_path, 
         # predict.append(result.pred_sem_seg.data.detach().cpu().squeeze(0).numpy())
         prob_xline.append(torch.sigmoid(result.seg_logits.data.detach().cpu().squeeze(0)).numpy())
     # predict = np.stack(predict, axis=0)
-    prob_xline = np.stack(prob_xline, axis=0)
+    prob_xline = np.stack(prob_xline, axis=1)
     # convert to float 16
     prob_xline = prob_xline.astype(np.float16)
 
