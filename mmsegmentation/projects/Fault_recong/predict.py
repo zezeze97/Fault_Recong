@@ -123,8 +123,10 @@ def predict_3d(config_file, checkpoint_file, input_cube, save_path, device='cuda
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     # np.save(os.path.join(save_path, 'predict.npy'), predict)
-    np.save(os.path.join(save_path, 'score.npy'), prob)
-
+    if direction == "inline":
+        np.save(os.path.join(save_path, 'score_inline.npy'), prob)
+    elif direction == "xline":
+        np.save(os.path.join(save_path, 'score_xline.npy'), prob)
 
 def predict_2d(config_file, checkpoint_file, input_path, save_path, device='cuda', force_3_chan=False):
     
