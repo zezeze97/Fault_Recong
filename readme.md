@@ -39,6 +39,13 @@ pip install -v -e .
 # '-e' 表示以可编辑模式安装工程，
 # 因此对代码所做的任何修改都生效，无需重新安装
 ```
+## 2D自监督预训练环境安装
+进入[2D自监督预训练代码库](./mmpretrain), 原本代码库的说明文档位于[./mmpretrain/README_zh-CN.md](./mmpretrain/README_zh-CN.md), 这里简单说明一下安装步骤, 如遇问题可参考mmpretrain的官方文档.
+```
+cd mmpretrain
+pip3 install openmim
+mim install -e .
+```
 
 ## 3D分割模型环境安装
 进入[3D分割代码库](./MIM-Med3D):
@@ -58,99 +65,45 @@ predict_2d函数接受的输入为包含所有需要预测的2d图片的文件�
 ```
 python ./projects/Fault_recong/predict.py --config {Path to model config} \
                                         --checkpoint {Model checkpoint path} \
-                                        --input {Input image/cube path} \
+                                        --input {Input image root dir/cube path} \
                                         --save_path {Path to save predict result} \
                                         --predict_type {Predict 2d/3d fault} \
                                         --convert_25d {Whether convert to 2.5d} \ 
                                         --step {step size of 2.5d data} \ 
                                         --force_3_chan {Whether convert to 3 channel} \
                                         --device {Set cuda device} \
+                                        --direction {inline/xline} \
 ```
 除此之外, 在[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中还提供了predict_2d_single_image函数, 支持numpy数组作为输入, 其余参数与predict_2d函数相同, 可用于单张图片的预测, 函数返回的是输入图片的断层预测得分
 ```
 # 使用示例
 input = np.load(f'{image_path}') # 单通道图片
-config_file = './output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py'
-checkpoint_file = './output/swin-base-2D_0519_Data-256x256-random-split/Best.pth'
+config_file = './output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e.py'
+checkpoint_file = './output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/best.pth'
 device = 'cuda:0'
 score = predict_2d_single_image(config_file, checkpoint_file, input, device, force_3_chan=True) # score为该图片的断层预测得分[0,1]
 
 
 ```
-
-## Thebe数据训练的2D网络
-调用基于Thebe数据训练的网络, 使用了2.5d数据拼接方式, 随机剪裁512x512分辨率(输入切片分辨率不能低于此分辨率), 断层损失函数权重10倍加权等技巧. 由于2.5d数据技巧，该模型只能用于预测3d断层. 输出是与输入相同大小的预测结果(predict.npy)和得分结果(score.npy).
+## 使用混合数据训练的2D网络
+可以使用如下命令调用混合数据训练的2D网络模型对新的数据进行预测
 ```
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-thebe-512x512/swin-base-thebe-512x512.py \
-                                        --checkpoint ./output/swin-base-thebe-512x512/Best.pth \
-                                        --input /Fault_data/public_data/precessed/test/seis/seistest.npy \
-                                        --save_path ./output/swin-base-thebe-512x512/predict \
-                                        --predict_type 3d \
-                                        --convert_25d True \
-                                        --step 5 \
-                                        --device cuda:0 \
-```
-
-## 3D项目数据训练的2D网络
-调用基于项目3d数据(501x501x801大小)训练的2D网络对3D数据进行预测，由于2.5d数据技巧，该模型只能用于预测3d断层. 训练时的随机剪裁256x256, 输入的图片不能低于此分辨率. 输出是与输入相同大小的预测结果(predict.npy)和得分结果(score.npy).
-```
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-3d_project_data-256x256/swin-base-3d_project_data-256x256.py \
-                                        --checkpoint ./output/swin-base-3d_project_data-256x256/Best.pth \
-                                        --input /Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy \
-                                        --save_path ./output/swin-base-3d_project_data-256x256/predict \
-                                        --predict_type 3d \
-                                        --convert_25d True \
-                                        --step 5 \
-                                        --device cuda:0 \
-```
-
-## 2D项目数据训练的2D网络
-调用基于项目2d数据(分辨率256x256, 一共991张图片)训练的2D网络对2D数据进行预测, 注意输入的图片是将原始的单通道复制三次, 形成3通道图片, predict_2d函数中的force_3_chan=True即可. 输出在save_path中，是每张图片预测的score...
-```
-# random split 训练出的模型, 预测整个文件夹内的图片
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py \
-                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-random-split/Best.pth \
-                                        --input /Fault_data/2Dfault_0519_256/converted/val/image \
-                                        --save_path ./output/swin-base-2D_0519_Data-256x256-random-split/predict \
-                                        --predict_type 2d \
-                                        --force_3_chan True \
-                                        --device cuda:0 \
-# random split 训练出的模型, 预测整个数据体
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-random-split/swin-base-2D_0519_Data-256x256-random-split.py \
-                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-random-split/Best.pth \
-                                        --input {Path of cube} \
-                                        --save_path ./output/swin-base-2D_0519_Data-256x256-random-split/predict \
+python ./projects/Fault_recong/predict.py --config ./output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e.py \
+                                        --checkpoint ./output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/best.pth \
+                                        --input {Input cube path, xxx.sgy} \
+                                        --save_path {Path to save predict result} \
                                         --predict_type 3d \
                                         --force_3_chan True \
                                         --device cuda:0 \
-
-
-# 使用前三个slice训练出的模型, 预测整个文件夹内的图片
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-slice-split/swin-base-2D_0519_Data-256x256-slice-split.py \
-                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-slice-split/Best.pth \
-                                        --input /Fault_data/2Dfault_0519_256/converted_slice_split/val/image \
-                                        --save_path ./output/swin-base-2D_0519_Data-256x256-slice-split/predict \
-                                        --predict_type 2d \
-                                        --force_3_chan True \
-                                        --device cuda:0 \
-
-# 使用前三个slice训练出的模型, 预测整个数据体
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-2D_0519_Data-256x256-slice-split/swin-base-2D_0519_Data-256x256-slice-split.py \
-                                        --checkpoint ./output/swin-base-2D_0519_Data-256x256-slice-split/Best.pth \
-                                        --input {Path of cube} \
-                                        --save_path ./output/swin-base-2D_0519_Data-256x256-slice-split/predict \
-                                        --predict_type 3d \
-                                        --force_3_chan True \
-                                        --device cuda:0 \
-
+                                        --direction inline \
 ```
 
 # 3D模型预测接口
-在[3D模型代码库](./MIM-Med3D/)下, 调用[./mmsegmentation/projects/Fault_recong/predict.py](./mmsegmentation/projects/Fault_recong/predict.py)中的predict_sliding_window函数, 模型会按照128x128x128的大小对输入的3D断层进行slice inferrence. 该函数接受的输入为.npy或者.sgy文件, 调用的通用格式如下
+在[3D模型代码库](./MIM-Med3D/)下, 调用[./MIM-Med3D/code/experiments/sl/predict.py](./MIM-Med3D/code/experiments/sl/predict.py)中的predict_sliding_window函数, 模型会按照128x128x128的大小对输入的3D断层进行slice inferrence. 该函数接受的输入为.npy或者.sgy文件, 调用的通用格式如下
 ```
 python ./code/experiments/sl/prediect.py --config {Path to model config} \
                                         --checkpoint {Model checkpoint path} \
-                                        --input {Input image/cube path} \
+                                        --input {Input cube path} \
                                         --save_path {Path to save predict result} \
                                         --device {Set cuda device} \
 ```
@@ -159,19 +112,9 @@ python ./code/experiments/sl/prediect.py --config {Path to model config} \
 ## 基于Thebe数据训练的3D分割模型
 ```
 python ./code/experiments/sl/prediect.py \
-        --config ./output/swin_unetr_base_supbaseline_p16_public_192x384x384_zoom/config.yaml \
-        --checkpoint ./output/swin_unetr_base_supbaseline_p16_public_192x384x384_zoom/checkpoints/best.ckpt \
-        --input /Fault_data/public_data/precessed/test/seis/seistest.npy \
-        --save_path ./output/swin_unetr_base_supbaseline_p16_public_192x384x384_zoom/predict \
-        --device cuda:0 \
-```
-
-## 基于项目3d数据(501x501x801大小)训练的3D分割模型
-```
-python ./code/experiments/sl/prediect.py \
-        --config ./output/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/config.yaml \
-        --checkpoint ./output/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/checkpoints/best.ckpt \
-        --input /Fault_data/real_labeled_data/origin_data/seis/mig_fill.sgy \
-        --save_path  ./output/swin_unetr_base_simmim_p16_real_labeled_crop_192-pos-weight-10-dilate-1/predict \
+        --config ./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/config.yaml \
+        --checkpoint./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/checkpoints/best.ckpt \
+        --input {Input cube path} \
+        --save_path {Path to save predict result} \
         --device cuda:0 \
 ```
