@@ -111,7 +111,7 @@ python ./code/experiments/sl/prediect.py --config {Path to model config} \
 
 ## 基于Thebe数据训练的3D分割模型
 ```
-python ./code/experiments/sl/prediect.py \
+python ./code/experiments/sl/predict.py \
         --config ./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/config.yaml \
         --checkpoint./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/checkpoints/best.ckpt \
         --input {Input cube path} \
