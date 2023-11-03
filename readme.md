@@ -98,6 +98,27 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-patch4-win
                                         --direction inline \
 ```
 
+# 2D模型训练接口
+
+调用的配置文件为[./mmsegmentation/projects/Fault_recong/config/swin-base-simmim.py](./mmsegmentation/projects/Fault_recong/config/swin-base-simmim.py), 注意指定第71行的data_root, 数据格式要求为./data_root下包含的文件结构为
+```
+.
+├── train
+│   ├── ann
+│   └── image
+└── val
+    ├── ann
+    └── image
+
+```
+其中ann文件夹下为*.png的(0,1)体断层标注, image文件夹下为*.npy的数据体, image和ann的文件名需要对应上.
+```
+cd mmsegmentation
+# bash run.sh {GPU_NUM}
+# eg 使用单卡, 从自监督预训练ckpt开始, 训练16000个iter, 训练的ckpts保存在./output/swin-base-simmim文件夹下
+sh run.sh 0
+```
+
 # 3D模型预测接口
 在[3D模型代码库](./MIM-Med3D/)下, 调用[./MIM-Med3D/code/experiments/sl/predict.py](./MIM-Med3D/code/experiments/sl/predict.py)中的predict_sliding_window函数, 模型会按照128x128x128的大小对输入的3D断层进行slice inferrence. 该函数接受的输入为.npy或者.sgy文件, 调用的通用格式如下
 ```
@@ -117,4 +138,17 @@ python ./code/experiments/sl/predict.py \
         --input {Input cube path} \
         --save_path {Path to save predict result} \
         --device cuda:0 \
+```
+
+# 3D模型训练接口
+模型的训练调用[./code/experiments/sl/multi_seg_main.py](./code/experiments/sl/multi_seg_main.py), 配置文件为[./code/configs/sl/fault/swin_unetr_ft.yaml](./code/configs/sl/fault/swin_unetr_ft.yaml), 需要在109行的labeled_data_root_dir_lst指定数据的位置, 数据格式要求为data_root下包含的文件结构为
+```
+.
+├── train
+└── val
+```
+train/val文件夹下为一系列*.h5文件, 每个文件内包含"raw", "label"分别对应切割好的256 * 256 *256 大小的数据体，断层体
+```
+# 进行1000个epoch的ft, 训练结果保存在./output/Fault_Finetuning/swin_unetr_ft文件夹下
+sh train.sh ./code/experiments/sl/multi_seg_main.py ./code/configs/sl/fault/swin_unetr_ft.yaml
 ```
