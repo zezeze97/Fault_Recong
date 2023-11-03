@@ -50,6 +50,7 @@ mim install -e .
 ## 3D分割模型环境安装
 进入[3D分割代码库](./MIM-Med3D):
 ```
+cd MIM-Med3D
 pip install -r requirements.txt
 ```
 
@@ -63,6 +64,7 @@ pip install -r requirements.txt
 
 predict_2d函数接受的输入为包含所有需要预测的2d图片的文件夹, 里面的文件为.npy或者.png的单通道图片. 
 ```
+cd mmsegmentation
 python ./projects/Fault_recong/predict.py --config {Path to model config} \
                                         --checkpoint {Model checkpoint path} \
                                         --input {Input image root dir/cube path} \
@@ -88,14 +90,8 @@ score = predict_2d_single_image(config_file, checkpoint_file, input, device, for
 ## 使用混合数据训练的2D网络
 可以使用如下命令调用混合数据训练的2D网络模型对新的数据进行预测
 ```
-python ./projects/Fault_recong/predict.py --config ./output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e.py \
-                                        --checkpoint ./output/swin-base-patch4-window7_upernet_8xb2-160k_mix_data_v3_force_3_chan-512x512_per_image_normal_simmim_2000e/best.pth \
-                                        --input {Input cube path, xxx.sgy} \
-                                        --save_path {Path to save predict result} \
-                                        --predict_type 3d \
-                                        --force_3_chan True \
-                                        --device cuda:0 \
-                                        --direction inline \
+cd mmsegmentation
+sh predict.sh {Input cube(*.npy/*.sgy)} {Save path}
 ```
 
 # 2D模型训练接口
@@ -132,12 +128,8 @@ python ./code/experiments/sl/prediect.py --config {Path to model config} \
 
 ## 基于Thebe数据训练的3D分割模型
 ```
-python ./code/experiments/sl/predict.py \
-        --config ./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/config.yaml \
-        --checkpoint./output/Fault_Finetune/swin_unetr_base_simmim500e_p16_public_256_flip_rotate_aug_4x4_rerun/checkpoints/best.ckpt \
-        --input {Input cube path} \
-        --save_path {Path to save predict result} \
-        --device cuda:0 \
+cd MIM-Med3D
+sh predict.sh {Input cube(*.npy/*.sgy)} {Save path}
 ```
 
 # 3D模型训练接口
