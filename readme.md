@@ -141,6 +141,6 @@ sh predict.sh {Input cube(*.npy/*.sgy)} {Save path}
 ```
 train/val文件夹下为一系列*.h5文件, 每个文件内包含"raw", "label"分别对应切割好的256 * 256 *256 大小的数据体，断层体
 ```
-# 进行1000个epoch的ft, 训练结果保存在./output/Fault_Finetuning/swin_unetr_ft文件夹下
+# 从自监督预训练ckpt开始, 进行1000个epoch的ft, 训练结果保存在./output/Fault_Finetuning/swin_unetr_ft文件夹下
 sh train.sh ./code/experiments/sl/multi_seg_main.py ./code/configs/sl/fault/swin_unetr_ft.yaml
 ```
