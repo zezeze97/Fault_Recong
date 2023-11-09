@@ -23,3 +23,5 @@ temp.txt
 __pycache__/
 *.out
 *.log
+runs/
+logs/

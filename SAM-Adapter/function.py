@@ -53,8 +53,9 @@ import torch
 args = cfg.parse_args()
 
 GPUdevice = torch.device('cuda', args.gpu_device)
-pos_weight = torch.ones([1]).cuda(device=GPUdevice)*2
-criterion_G = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+# pos_weight = torch.ones([1]).cuda(device=GPUdevice)*2
+# criterion_G = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+criterion_G = torch.nn.BCEWithLogitsLoss()
 seed = torch.randint(1,11,(args.b,7))
 
 torch.backends.cudnn.benchmark = True
@@ -109,7 +110,7 @@ def train_sam(args, net: nn.Module, optimizer, train_loader,
                 point_labels = torch.ones(imgs.size(0))
 
                 imgs = torchvision.transforms.Resize((args.image_size,args.image_size))(imgs)
-                masks = torchvision.transforms.Resize((args.out_size,args.out_size))(masks)
+                masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=Image.NEAREST)(masks)
             
             showp = pt
 
@@ -169,7 +170,7 @@ def train_sam(args, net: nn.Module, optimizer, train_loader,
                     namecat = 'Train'
                     for na in name:
                         namecat = namecat + na.split('/')[-1].split('.')[0] + '+'
-                    vis_image(imgs,pred,masks, os.path.join(args.path_helper['sample_path'], namecat+'epoch+' +str(epoch) + '.jpg'), reverse=False, points=showp)
+                    vis_image(imgs, torch.sigmoid(pred), masks, os.path.join(args.path_helper['sample_path'], namecat+'epoch+' +str(epoch) + '.jpg'), reverse=False, points=showp)
 
             pbar.update()
 
@@ -231,7 +232,7 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                     point_labels = torch.ones(imgs.size(0))
 
                     imgs = torchvision.transforms.Resize((args.image_size,args.image_size))(imgs)
-                    masks = torchvision.transforms.Resize((args.out_size,args.out_size))(masks)
+                    masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=Image.NEAREST)(masks)
                 
                 showp = pt
 
@@ -271,7 +272,7 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                         dense_prompt_embeddings=de, 
                         multimask_output=False,
                     )
-                
+
                     tot += lossfunc(pred, masks)
 
                     '''vis images'''
@@ -280,10 +281,9 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                         for na in name:
                             img_name = na.split('/')[-1].split('.')[0]
                             namecat = namecat + img_name + '+'
-                        vis_image(imgs,pred, masks, os.path.join(args.path_helper['sample_path'], namecat+'epoch+' +str(epoch) + '.jpg'), reverse=False, points=showp)
+                        vis_image(imgs, torch.sigmoid(pred), masks, os.path.join(args.path_helper['sample_path'], namecat+'epoch+' +str(epoch) + '.jpg'), reverse=False, points=showp)
                     
-
-                    temp = eval_seg(pred, masks, threshold)
+                    temp = eval_seg(torch.sigmoid(pred), masks, threshold)
                     mix_res = tuple([sum(a) for a in zip(mix_res, temp)])
 
             pbar.update()

@@ -14,7 +14,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics import roc_auc_score, accuracy_score,confusion_matrix
+# from sklearn.metrics import roc_auc_score, accuracy_score,confusion_matrix
 import torchvision
 import torchvision.transforms as transforms
 from skimage import io
@@ -102,6 +102,12 @@ if args.dataset == 'isic':
 
 elif args.dataset == 'decathlon':
     nice_train_loader, nice_test_loader, transform_train, transform_val, train_list, val_list =get_decath_loader(args)
+
+elif args.dataset == 'fault2d':
+    train_dataset = Fault2D(args, args.data_path, mode='train')
+    test_dataset = Fault2D(args, args.data_path, mode='val')
+    nice_train_loader = DataLoader(train_dataset, batch_size=args.b, shuffle=True, num_workers=8, pin_memory=True)
+    nice_test_loader = DataLoader(test_dataset, batch_size=args.b, shuffle=False, num_workers=8, pin_memory=True)
 
 
 '''checkpoint path and tensorboard'''

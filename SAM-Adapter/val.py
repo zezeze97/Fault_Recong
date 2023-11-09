@@ -113,6 +113,12 @@ if args.dataset == 'isic':
 elif args.dataset == 'decathlon':
     nice_train_loader, nice_test_loader, transform_train, transform_val, train_list, val_list =get_decath_loader(args)
 
+elif args.dataset == 'fault2d':
+    train_dataset = Fault2D(args, args.data_path, transform=transform_train, transform_msk=transform_train_seg, mode='train')
+    test_dataset = Fault2D(args, args.data_path, transform=transform_test, transform_msk=transform_test_seg, mode='val')
+    nice_train_loader = DataLoader(train_dataset, batch_size=args.b, shuffle=True, num_workers=8, pin_memory=True)
+    nice_test_loader = DataLoader(test_dataset, batch_size=args.b, shuffle=False, num_workers=8, pin_memory=True)
+
 '''begain valuation'''
 best_acc = 0.0
 best_tol = 1e4
