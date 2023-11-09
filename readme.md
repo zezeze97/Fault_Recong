@@ -154,5 +154,5 @@ conda env create -f environment.yml
 conda activate sam_adapt
 
 # 2D数据FT
-python train.py -net sam -mod sam_adpt -exp_name Fault2D_SAM -sam_ckpt ./checkpoint/sam/sam_vit_b_01ec64.pth -image_size 1024 -b 4 -dataset fault2d -data_path /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices -val_freq 1 -vis 10
+python train.py -net sam -mod sam_adpt -exp_name Fault2D_SAM -sam_ckpt ./checkpoint/sam/sam_vit_b_01ec64.pth -image_size 1024 -b 4 -dataset fault2d -data_path /home/zhangzr/FaultRecongnition/Fault_data/real_labeled_data/2d_slices -val_freq 1 -vis 20
 ```

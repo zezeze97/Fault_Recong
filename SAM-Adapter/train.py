@@ -127,7 +127,7 @@ if not os.path.exists(checkpoint_path):
 checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
 
 '''begain training'''
-best_acc = 0.0
+# best_acc = 0.0
 best_tol = 1e4
 for epoch in range(settings.EPOCH):
     if args.mod == 'sam_adpt':
@@ -150,17 +150,13 @@ for epoch in range(settings.EPOCH):
 
             if tol < best_tol:
                 best_tol = tol
-                is_best = True
-
                 save_checkpoint({
                 'epoch': epoch + 1,
                 'model': args.net,
                 'state_dict': sd,
                 'optimizer': optimizer.state_dict(),
                 'best_tol': best_tol,
-                'path_helper': args.path_helper,
-            }, is_best, args.path_helper['ckpt_path'], filename="best_checkpoint")
-            else:
-                is_best = False
+                'path_helper': args.path_helper,}, args.path_helper['ckpt_path'], filename="best_checkpoint.pth")
+            
 
 writer.close()
