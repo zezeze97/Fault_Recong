@@ -17,6 +17,7 @@ import torch.optim as optim
 # from sklearn.metrics import roc_auc_score, accuracy_score,confusion_matrix
 import torchvision
 import torchvision.transforms as transforms
+from torchvision.transforms import InterpolationMode
 from skimage import io
 from torch.utils.data import DataLoader
 #from dataset import *
@@ -55,7 +56,7 @@ if args.weights != 0:
     loc = 'cuda:{}'.format(args.gpu_device)
     checkpoint = torch.load(checkpoint_file, map_location=loc)
     start_epoch = checkpoint['epoch']
-    best_tol = checkpoint['best_tol']
+    best_dice = checkpoint['best_dice']
     
     net.load_state_dict(checkpoint['state_dict'],strict=False)
     # optimizer.load_state_dict(checkpoint['optimizer'], strict=False)
@@ -128,7 +129,8 @@ checkpoint_path = os.path.join(checkpoint_path, '{net}-{epoch}-{type}.pth')
 
 '''begain training'''
 # best_acc = 0.0
-best_tol = 1e4
+# best_tol = 1e4
+best_dice = 0.0
 for epoch in range(settings.EPOCH):
     if args.mod == 'sam_adpt':
         net.train()
@@ -148,14 +150,14 @@ for epoch in range(settings.EPOCH):
             else:
                 sd = net.state_dict()
 
-            if tol < best_tol:
-                best_tol = tol
+            if edice > best_dice:
+                best_dice = edice
                 save_checkpoint({
                 'epoch': epoch + 1,
                 'model': args.net,
                 'state_dict': sd,
                 'optimizer': optimizer.state_dict(),
-                'best_tol': best_tol,
+                'best_dice': best_dice,
                 'path_helper': args.path_helper,}, args.path_helper['ckpt_path'], filename="best_checkpoint.pth")
             
 

@@ -14,6 +14,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 import torchvision.transforms.functional as F
 import torchvision.transforms as transforms
+from torchvision.transforms import InterpolationMode
 import pandas as pd
 from skimage.transform import rotate
 from utils import random_click
@@ -105,7 +106,7 @@ class Fault2D(Dataset):
                                              # transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
                                              ])
         self.transform_msk = transforms.Compose([transforms.RandomCrop((args.image_size, args.image_size), pad_if_needed=True, fill=0),
-                                                 transforms.Resize((args.out_size,args.out_size), interpolation=Image.NEAREST),
+                                                 transforms.Resize((args.out_size,args.out_size), interpolation=InterpolationMode.NEAREST),
                                                  transforms.ToTensor(),
                                                 ])
 
@@ -139,7 +140,8 @@ class Fault2D(Dataset):
         mask = Image.fromarray(mask * 255)
 
         if self.prompt == 'click':
-            pt = random_click(np.array(mask) / 255, point_label, inout)
+            # pt = random_click(np.array(mask) / 255, point_label, inout)
+            pt = random_click(np.ones((self.img_size, self.img_size)), point_label, inout)
 
         
         state = torch.get_rng_state()

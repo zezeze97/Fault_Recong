@@ -62,8 +62,8 @@ def main_v1():
         os.makedirs(os.path.join(dst_path, 'val', 'image'))
         os.makedirs(os.path.join(dst_path, 'val', 'ann'))
     print('loading seis train data')
-    seis_train = np.load(os.path.join(scr_root_path, 'seistrain.npy'))
-    fault_train = np.load(os.path.join(scr_root_path, 'faulttrain.npy'))
+    seis_train = np.load(os.path.join(scr_root_path, 'train', 'seis', 'seistrain.npy'), mmap_mode='r')
+    fault_train = np.load(os.path.join(scr_root_path, 'train', 'fault', 'faulttrain.npy'), mmap_mode='r')
     assert seis_train.shape == fault_train.shape
     for i in tqdm(range(seis_train.shape[0])):
         seis_slice = seis_train[i,:,:]
@@ -77,8 +77,8 @@ def main_v1():
     del fault_train
     
     print('loading seis val data')
-    seis_val = np.load(os.path.join(scr_root_path,'seisval.npy'))
-    fault_val = np.load(os.path.join(scr_root_path, 'faultval.npy'))
+    seis_val = np.load(os.path.join(scr_root_path, 'val', 'seis','seisval.npy'), mmap_mode='r')
+    fault_val = np.load(os.path.join(scr_root_path, 'val', 'fault', 'faultval.npy'), mmap_mode='r')
     assert seis_val.shape == fault_val.shape
     # seis_val = (seis_val - seis_val.min()) / (seis_val.max() - seis_val.min())
     for i in tqdm(range(seis_val.shape[0])):
@@ -164,6 +164,12 @@ def fault_pre_process(fault):
     return processed_fault
 
 if __name__ == '__main__':
+    main_v1()
+
+
+
+
+    '''
     convert_2d_sl(root_dir='/home/zhangzr/FaultRecongnition/Fault_data/project_data_v3/guai3east',
                   seis_name='seis.sgy',
                   fault_name='guai3east_fault.sgy',
@@ -171,11 +177,6 @@ if __name__ == '__main__':
                   end_id=814,
                   step=32,
                   convert_fault=False)
-
-
-
-
-    '''
     convert_2d_sl(root_dir='./Fault_data/project_data_v2/GYX',
                   seis_name='GYX3D2018-PSDM-VTI-CG1203-400Km2-DP-50.sgy',
                   fault_name='faults.sgy',

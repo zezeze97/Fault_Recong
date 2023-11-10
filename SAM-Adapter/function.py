@@ -11,6 +11,7 @@ import torch.optim as optim
 from sklearn.metrics import roc_auc_score, accuracy_score,confusion_matrix
 import torchvision
 import torchvision.transforms as transforms
+from torchvision.transforms import InterpolationMode
 from skimage import io
 from torch.utils.data import DataLoader
 #from dataset import *
@@ -110,7 +111,7 @@ def train_sam(args, net: nn.Module, optimizer, train_loader,
                 point_labels = torch.ones(imgs.size(0))
 
                 imgs = torchvision.transforms.Resize((args.image_size,args.image_size))(imgs)
-                masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=Image.NEAREST)(masks)
+                masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=InterpolationMode.NEAREST)(masks)
             
             showp = pt
 
@@ -232,7 +233,7 @@ def validation_sam(args, val_loader, epoch, net: nn.Module, clean_dir=True):
                     point_labels = torch.ones(imgs.size(0))
 
                     imgs = torchvision.transforms.Resize((args.image_size,args.image_size))(imgs)
-                    masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=Image.NEAREST)(masks)
+                    masks = torchvision.transforms.Resize((args.out_size,args.out_size), interpolation=InterpolationMode.NEAREST)(masks)
                 
                 showp = pt
 
