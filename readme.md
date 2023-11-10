@@ -153,6 +153,9 @@ cd SAM-Adapter
 conda env create -f environment.yml
 conda activate sam_adapt
 
-# 2D数据FT
+# 2D数据FT, ckpts保存在./SAM-Adapter/logs文件夹下
 python train.py -net sam -mod sam_adpt -exp_name Fault2D_SAM -sam_ckpt ./checkpoint/sam/sam_vit_b_01ec64.pth -image_size 1024 -b 4 -dataset fault2d -data_path ../Fault_data/public_data/2d_slices -val_freq 1 -vis 50
+
+# predict
+python predict.py --device cuda:0 --input_cube_path {input .npy/.sgy path} --save_path {Path to save score} --sam_ckpt {ft ckpt path}
 ```
