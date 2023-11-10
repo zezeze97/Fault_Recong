@@ -34,9 +34,7 @@ def slice_inference(slice, net, device, patch_size=1024, stride=512):
             x1 = max(x2 - w_crop, 0)
             crop_img = slice[:, :, y1:y2, x1:x2]
             crop_seg_logit = inference(crop_img, net, device)
-            preds += F.pad(crop_seg_logit,
-                            (int(x1), int(preds.shape[3] - x2), int(y1),
-                            int(preds.shape[2] - y2)))
+            preds[:, :, y1:y2, x1:x2] += crop_seg_logit
             count_mat[:, :, y1:y2, x1:x2] += 1
     assert (count_mat == 0).sum() == 0
     seg_logits = preds / count_mat
@@ -96,7 +94,11 @@ def main(args):
     args.heads = 16
     args.mlp_dim = 1024
     args.thd = False
-    net = sam_model_registry['vit_b'](args,checkpoint=args.sam_ckpt).to(args.device)
+    net = sam_model_registry['vit_b'](args, checkpoint=args.sam_ckpt) # 原始的load会加载失败, 因为strict=False..., 故需要重新加载ckpts
+    checkpoint = torch.load(args.sam_ckpt, map_location='cpu')
+    state_dict = checkpoint['state_dict']
+    net.load_state_dict(state_dict)
+    net.to(args.device)
     net.eval()
     
     # load input 
