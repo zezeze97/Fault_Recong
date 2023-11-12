@@ -139,7 +139,8 @@ for epoch in range(settings.EPOCH):
         logger.info(f'Train loss: {loss}|| @ epoch {epoch}.')
         time_end = time.time()
         print('time_for_training ', time_end - time_start)
-
+        # adjust lr
+        scheduler.step()
         net.eval()
         if epoch and epoch % args.val_freq == 0 or epoch == settings.EPOCH-1:
             tol, (eiou, edice) = function.validation_sam(args, nice_test_loader, epoch, net, writer)
