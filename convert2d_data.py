@@ -151,7 +151,7 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
             fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
-        cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
+        print(cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice))
 
 def fault_pre_process(fault):
     '''
