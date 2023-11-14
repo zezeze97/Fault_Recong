@@ -68,7 +68,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
-data_root = '../Fault_Data/2d_slices_sl'
+data_root = '../Fault_Data/yd-data/2d_slices_sl'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromNpy', force_3_channel=True),

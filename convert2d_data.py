@@ -151,7 +151,7 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
             fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
         np.save(os.path.join(dst_path, 'train', 'image', f'{i}.npy'), seis_slice)
-        print(cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice))
+        cv2.imwrite(os.path.join(dst_path, 'train', 'ann', f'{i}.png'), fault_slice)
 
 def fault_pre_process(fault):
     '''
@@ -166,7 +166,7 @@ def fault_pre_process(fault):
 
 if __name__ == '__main__':
     # main_v1()
-    convert_2d_sl(root_dir='./Fault_Data/冀东数据/',
+    convert_2d_sl(root_dir='./Fault_Data/yd-data/',
                   seis_name='seismic.sgy',
                   fault_name='Fault.sgy',
                   start_id=3,
