@@ -45,7 +45,7 @@ if args.pretrain:
     net.load_state_dict(weights,strict=False)
 
 optimizer = optim.Adam(net.parameters(), lr=args.lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5) #learning rate decay
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.5) #learning rate decay
 
 '''load pretrained model'''
 if args.weights != 0:
@@ -136,7 +136,7 @@ for epoch in range(settings.EPOCH):
         net.train()
         time_start = time.time()
         loss = function.train_sam(args, net, optimizer, nice_train_loader, epoch, writer, vis = args.vis)
-        logger.info(f'Train loss: {loss}|| @ epoch {epoch}.')
+        logger.info(f'Train loss: {loss}|| lr: {optimizer.param_groups[0]["lr"]} ||@ epoch {epoch}.')
         time_end = time.time()
         print('time_for_training ', time_end - time_start)
         # adjust lr
