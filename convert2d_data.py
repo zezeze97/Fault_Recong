@@ -144,8 +144,8 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
     assert seis.shape == fault.shape
     print(f'shape is {seis.shape}')
     for i in tqdm(range(start_id, end_id, step)):
-        seis_slice = seis[:, i, :]
-        fault_slice = fault[:, i, :]
+        seis_slice = seis[i, :, :]
+        fault_slice = fault[i, :, :]
         if convert_fault:
             fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
@@ -164,8 +164,14 @@ def fault_pre_process(fault):
     return processed_fault
 
 if __name__ == '__main__':
-    main_v1()
-
+    # main_v1()
+    convert_2d_sl(root_dir='./Fault_Data/冀东数据/',
+                  seis_name='seismic.sgy',
+                  fault_name='Fault.sgy',
+                  start_id=3,
+                  end_id=1230,
+                  step=8,
+                  convert_fault=False)
 
 
 
