@@ -146,7 +146,7 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
     for i in tqdm(range(start_id, end_id, step)):
         seis_slice = seis[i, :, :]
         fault_slice = fault[i, :, :]
-        print(fault_slice)
+        print(fault_slice.shape, np.unique(fault_slice))
         if convert_fault:
             fault_slice = fault_pre_process(fault_slice)
         assert np.sum(fault_slice) > 0.0
