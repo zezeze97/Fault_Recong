@@ -68,7 +68,7 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)))
 dataset_type = 'FaultDataset'
-data_root = '../Fault_Data/yd-data/2d_slices_sl'
+data_root_lst = ['../Fault_Data/yd-data/2d_slices_sl_inline', '../Fault_Data/yd-data/2d_slices_sl_xline']
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromNpy', force_3_channel=True),
@@ -88,18 +88,28 @@ test_pipeline = [
     dict(type='LoadAnnotations'),
     dict(type='PackSegInputs')
 ]
-train_dataset = dict(type=dataset_type,
+train_dataset_lst = []
+for data_root in data_root_lst:
+    train_dataset_lst.append(dict(type=dataset_type,
                     data_root=data_root,
                     data_prefix=dict(
                     img_path='train/image', 
                     seg_map_path='train/ann'),
-                    pipeline=train_pipeline)
-val_dataset = dict(type=dataset_type,
+                    pipeline=train_pipeline))
+
+train_dataset = dict(type='ConcatDataset',
+                     datasets=train_dataset_lst)
+
+val_dataset_lst = []
+for data_root in data_root_lst:
+    val_dataset_lst.append(dict(type=dataset_type,
                     data_root=data_root,
                     data_prefix=dict(
                     img_path='train/image',
                     seg_map_path='train/ann'),
-                    pipeline=test_pipeline)
+                    pipeline=test_pipeline))
+val_dataset = dict(type='ConcatDataset',
+                     datasets=val_dataset_lst)
 
 train_dataloader = dict(
     batch_size=2,

@@ -144,8 +144,8 @@ def convert_2d_sl(root_dir, seis_name, fault_name, start_id, end_id, step, conve
     assert seis.shape == fault.shape
     print(f'shape is {seis.shape}')
     for i in tqdm(range(start_id, end_id, step)):
-        seis_slice = seis[i, :, :]
-        fault_slice = fault[i, :, :]
+        seis_slice = seis[:, i, :]
+        fault_slice = fault[:, i, :]
         fault_slice = fault_slice.astype(np.uint8)
         if convert_fault:
             fault_slice = fault_pre_process(fault_slice)
@@ -169,8 +169,8 @@ if __name__ == '__main__':
     convert_2d_sl(root_dir='./Fault_Data/yd-data/',
                   seis_name='seismic.sgy',
                   fault_name='Fault.sgy',
-                  start_id=3,
-                  end_id=1230,
+                  start_id=4,
+                  end_id=1212,
                   step=8,
                   convert_fault=False)
 
