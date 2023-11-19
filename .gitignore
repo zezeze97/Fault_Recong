@@ -25,3 +25,5 @@ __pycache__/
 *.log
 runs/
 logs/
+SAM-Adapter/thebe_pred_v2
+SAM-Adapter/thebe_pred_v4
