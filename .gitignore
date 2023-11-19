@@ -19,7 +19,6 @@ mmsegmentation/output
 *.pyc
 *.pth
 *.npy
-temp.txt
 __pycache__/
 *.out
 *.log
