@@ -349,8 +349,8 @@ class FaultWholeRandomDataset_Multi_Decode(pl.LightningDataModule):
             valid_ds = []
             if self.labeled_data_root_dir_lst is not None:
                 for data_root_dir in self.labeled_data_root_dir_lst:
-                    train_ds.append(FaultWholeRandom_Multi_Decode(root_dir=data_root_dir, split='train', dilate=self.dilate, crop_size=self.crop_size, num_decoder=self.num_decoder))
-                    valid_ds.append(FaultWholeRandom_Multi_Decode(root_dir=data_root_dir, split='val', dilate=self.dilate, crop_size=self.crop_size, num_decoder=self.num_decoder))
+                    train_ds.append(FaultWholeRandom_Multi_Decode(root_dir=data_root_dir, split='train', crop_size=self.crop_size, num_decoder=self.num_decoder))
+                    valid_ds.append(FaultWholeRandom_Multi_Decode(root_dir=data_root_dir, split='val', crop_size=self.crop_size, num_decoder=self.num_decoder))
             self.train_ds = ConcatDataset(train_ds)
             self.valid_ds = ConcatDataset(valid_ds)
           
