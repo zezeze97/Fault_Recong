@@ -9,6 +9,7 @@ import numpy as np
 import h5py
 import segyio
 import cv2
+import random
 from monai.transforms import (
     AsDiscrete,
     AddChanneld,
@@ -284,3 +285,170 @@ class FaultDataset(pl.LightningDataModule):
             shuffle=False,
             drop_last=False,
         )
+        
+
+class FaultWholeRandom(Dataset):
+    def __init__(self, 
+                root_dir: str, 
+                split: str = 'train',
+                mean=None,
+                std=None,
+                dilate=False,
+                crop_size=(128, 128, 128)):
+        self.root_dir = root_dir
+        self.split = split
+        self.dilate = dilate
+        if self.dilate:
+            self.dilate_kernel = np.ones((3,3), dtype=np.uint8)
+        
+        self.train_transform = Compose([
+                                RandFlipd(keys=["image", "label"], spatial_axis=[0], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[1], prob=0.10,),
+                                RandFlipd(keys=["image", "label"], spatial_axis=[2], prob=0.10,),
+                                RandRotate90d(keys=["image", "label"], prob=0.10, max_k=3, spatial_axes=(0, 1)),
+                                NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+                                ])
+        self.val_transform = NormalizeIntensityd(keys=["image"], subtrahend=mean, divisor=std, nonzero=True, channel_wise=False) # nonzero = False
+        if self.split == 'train':
+            self.seis_data = np.load(os.path.join(self.root_dir, self.split, 'seis', 'seistrain.npy'), mmap_mode='r')
+            self.fault_data = np.load(os.path.join(self.root_dir, self.split, 'fault', 'faulttrain.npy'), mmap_mode='r')
+            assert self.seis_data.shape == self.fault_data.shape
+            self.cube_shape = self.seis_data.shape
+        elif self.split == 'val':
+            self.seis_data = np.load(os.path.join(self.root_dir, self.split, 'seis', 'seisval.npy'), mmap_mode='r')
+            self.fault_data = np.load(os.path.join(self.root_dir, self.split, 'fault', 'faultval.npy'), mmap_mode='r')
+            assert self.seis_data.shape == self.fault_data.shape
+            self.cube_shape = self.seis_data.shape
+        else:
+            raise ValueError('Only support split = train/val')
+        self.crop_size = crop_size
+        assert self.cube_shape[0] > self.crop_size[0] and self.cube_shape[1] > self.crop_size[1] and self.cube_shape[2] > self.crop_size[2]
+    
+    def __len__(self):
+        simulate_num = self.cube_shape[0] * self.cube_shape[1] * self.cube_shape[2] / (self.crop_size[0] * self.crop_size[1] * self.crop_size[2])
+        return int(simulate_num)
+    
+    def __getitem__(self, index):
+        center_x = random.randint(self.crop_size[0]//2, self.cube_shape[0] - self.crop_size[0]//2)
+        center_y = random.randint(self.crop_size[1]//2, self.cube_shape[1] - self.crop_size[0]//2)
+        center_z = random.randint(self.crop_size[2]//2, self.cube_shape[2] - self.crop_size[0]//2)
+        
+        image = self.seis_data[center_x-self.crop_size[0]//2:center_x+self.crop_size[0]//2, 
+                               center_y-self.crop_size[1]//2:center_y+self.crop_size[1]//2,
+                               center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2]
+        mask = self.fault_data[center_x-self.crop_size[0]//2:center_x+self.crop_size[0]//2, 
+                               center_y-self.crop_size[1]//2:center_y+self.crop_size[1]//2,
+                               center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2]
+        
+        if self.dilate:
+            for idx in range(mask.shape[0]):
+                mask[idx, :, :] = cv2.dilate(mask[idx, :, :], kernel=self.dilate_kernel, iterations=1) # iterations = 1, 3, 5
+        
+        if self.split == 'train':
+            return self.train_transform({'image': torch.from_numpy(image.copy().astype(np.float32)).unsqueeze(0),
+                                        'label': torch.from_numpy(mask.copy().astype(np.float32)).unsqueeze(0)})
+
+        elif self.split == 'val':
+            return self.val_transform({'image': torch.from_numpy(image.copy().astype(np.float32)).unsqueeze(0),
+                    'label': torch.from_numpy(mask.copy().astype(np.float32)).unsqueeze(0)})
+        
+
+class FaultWholeRandomDataset(pl.LightningDataModule):
+    def __init__(
+        self,
+        labeled_data_root_dir_lst=None,
+        batch_size: int = 1,
+        val_batch_size: int = 1,
+        num_workers: int = 4,
+        crop_size=(128, 128, 128),
+        dilate=False,
+        dist: bool = False,
+    ):
+        super().__init__()
+        self.labeled_data_root_dir_lst = labeled_data_root_dir_lst
+        self.batch_size = batch_size
+        self.val_batch_size = val_batch_size
+        self.num_workers = num_workers
+        self.crop_size = crop_size
+        self.dilate = dilate
+        self.dist = dist
+
+
+    def setup(self, stage: Optional[str] = None):
+        # Assign Train split(s) for use in Dataloaders
+        if stage in [None, "fit"]:
+            train_ds = []
+            valid_ds = []
+            if self.labeled_data_root_dir_lst is not None:
+                for data_root_dir in self.labeled_data_root_dir_lst:
+                    train_ds.append(FaultWholeRandom(root_dir=data_root_dir, split='train', dilate=self.dilate, crop_size=self.crop_size))
+                    valid_ds.append(FaultWholeRandom(root_dir=data_root_dir, split='val', dilate=self.dilate, crop_size=self.crop_size))
+            self.train_ds = ConcatDataset(train_ds)
+            self.valid_ds = ConcatDataset(valid_ds)
+          
+
+    def train_dataloader(self):
+        if self.dist:
+            dataloader = torch.utils.data.DataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            shuffle=False,
+            sampler=DistributedSampler(self.train_ds),
+            drop_last=False,
+        )
+        else:
+            dataloader = torch.utils.data.DataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            shuffle=True,
+            drop_last=False,
+        )
+            
+        return dataloader
+
+    def val_dataloader(self):
+        if self.dist:
+            dataloader = torch.utils.data.DataLoader(
+            self.valid_ds,
+            batch_size=self.val_batch_size,
+            num_workers=self.num_workers,
+            # num_workers=0,
+            pin_memory=True,
+            persistent_workers=True,
+            shuffle=False,
+            sampler=DistributedSampler(self.valid_ds, shuffle=False, drop_last=False),
+            drop_last=False,
+        )
+        else:
+            dataloader = torch.utils.data.DataLoader(
+            self.valid_ds,
+            batch_size=self.val_batch_size,
+            num_workers=self.num_workers,
+            # num_workers=0,
+            pin_memory=True,
+            persistent_workers=True,
+            shuffle=False,
+            drop_last=False,
+        )
+        return dataloader
+
+
+if __name__ == '__main__':
+    dataloader = FaultWholeRandomDataset(labeled_data_root_dir_lst=['/home/zhangzr/FaultRecongnition/Fault_data/public_data/precessed'],
+                                         batch_size=2,
+                                         val_batch_size=1,
+                                         num_workers=4,
+                                         crop_size=(128, 128, 128))
+    dataloader.setup()
+    train_loader = dataloader.train_dataloader()
+    for data in train_loader:
+        print(data['image'].shape, data['label'].shape)
+        break
+    val_loader = dataloader.val_dataloader()
+    for data in val_loader:
+        print(data['image'].shape, data['label'].shape)
+        break
