@@ -111,7 +111,8 @@ data:
     batch_size: 2
     val_batch_size: 1
     num_workers: 8
-    dist: true
+    # dist: true
+    dist: false
     num_decoder: 3
 optimizer:
   class_path: torch.optim.AdamW
