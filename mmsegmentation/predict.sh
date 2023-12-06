@@ -10,4 +10,4 @@ python ./projects/Fault_recong/predict.py --config ./output/swin-base-patch4-win
                                         --predict_type 3d \
                                         --force_3_chan True \
                                         --device cuda:0 \
-                                        --direction inline \
+                                        --direction inline 
