@@ -10,7 +10,7 @@ data_preprocessor = dict(
     to_rgb=False)
 train_pipeline = [
     dict(type='LoadImageFromNpy', force_3_channel=True),
-    dict(type='PerImageNormalization', ignore_zoro=True),
+    dict(type='PerImageNormalization', ignore_zoro=False),
     dict(type='RandomCrop', crop_size=(512, 512), pad_if_needed=True, pad_val=0.0),
     dict(type='RandomFlip', prob=0.5),
     dict(
