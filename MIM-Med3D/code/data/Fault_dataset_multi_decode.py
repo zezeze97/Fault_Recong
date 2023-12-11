@@ -315,6 +315,8 @@ class FaultWholeRandom_Multi_Decode(Dataset):
         mask = self.fault_data[center_x-self.crop_size[0]//2:center_x+self.crop_size[0]//2, 
                                center_y-self.crop_size[1]//2:center_y+self.crop_size[1]//2,
                                center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2].copy()
+        
+        image = (image - image.min()) / (image.max() - image.min())
         labels = [mask]
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(self.crop_size)
