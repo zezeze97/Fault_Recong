@@ -203,6 +203,9 @@ def predict_sliding_window(config_path, ckpt_path, input_path, output_path, devi
             y_range = pos[1]
             z_range = pos[2]
             seis_cube_crop = seis[x_range, y_range, z_range]
+            # min max norm
+            seis_cube_crop = seis_cube_crop.copy()
+            seis_cube_crop = (seis_cube_crop - seis_cube_crop.min()) / (seis_cube_crop.max() - seis_cube_crop.min())
             # preprocess 
             seis_cube_crop = torch.from_numpy(seis_cube_crop.copy()).unsqueeze(0) # [C, H, W, D]
             input = data_preprocess(seis_cube_crop)  
