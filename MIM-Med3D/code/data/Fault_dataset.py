@@ -98,6 +98,10 @@ class Fault(Dataset):
             mask = None
         # mask = np.squeeze(mask,0)
         f.close()
+        
+        # min max norm
+        image = (image - image.min()) / (image.max() - image.min())
+        
         if self.split == 'train' and not self.is_ssl:
             return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
                                         'label': torch.from_numpy(mask).unsqueeze(0),
@@ -128,6 +132,10 @@ class Fault_Simple(Dataset):
             image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
         elif '.npy' in self.data_lst[index]:
             image = np.load(os.path.join(self.root_dir, self.data_lst[index]))
+        
+        # min max norm
+        image = (image - image.min()) / (image.max() - image.min())
+        
         return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                                 'image_name': self.data_lst[index]})
 
@@ -151,6 +159,11 @@ class Fault_Simulate(Dataset):
     def __getitem__(self, index):
         seis = np.fromfile(os.path.join(self.root_dir, 'seis', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
         fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        
+        # min max norm
+        seis = (seis - seis.min()) / (seis.max() - seis.min())
+        
+        
         if self.split == 'train':
             return self.train_transform({'image': torch.from_numpy(seis).unsqueeze(0),
                                          'label': torch.from_numpy(fault).unsqueeze(0),
@@ -339,6 +352,9 @@ class FaultWholeRandom(Dataset):
         mask = self.fault_data[center_x-self.crop_size[0]//2:center_x+self.crop_size[0]//2, 
                                center_y-self.crop_size[1]//2:center_y+self.crop_size[1]//2,
                                center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2]
+        
+        # min max norm 
+        image = (image - image.min()) / (image.max() - image.min())
         
         if self.dilate:
             for idx in range(mask.shape[0]):

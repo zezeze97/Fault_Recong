@@ -54,6 +54,10 @@ class Fault_Simulate_Multi_Decode(Dataset):
     def __getitem__(self, index):
         seis = np.fromfile(os.path.join(self.root_dir, 'seis', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
         fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
+        
+        # min max norm
+        seis = (seis - seis.min()) / (seis.max() - seis.min())
+        
         labels = [fault]
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(fault.shape)
@@ -85,6 +89,9 @@ class Fault_Simple(Dataset):
             image = segyio.tools.cube(os.path.join(self.root_dir, self.data_lst[index]))
         elif '.npy' in self.data_lst[index]:
             image = np.load(os.path.join(self.root_dir, self.data_lst[index]))
+        
+        # min max norm
+        image = (image - image.min()) / (image.max() - image.min())
         return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                                 'image_name': self.data_lst[index]})
 
@@ -126,6 +133,9 @@ class Fault_Multi_Decode(Dataset):
         mask = f['label'][:]
         mask = mask.astype(np.float32)
         f.close()
+        
+        # min max norm
+        image = (image - image.min()) / (image.max()-image.min())
         labels = [mask]
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(mask.shape)
