@@ -100,7 +100,7 @@ class Fault(Dataset):
         f.close()
         
         # min max norm
-        image = (image - image.min()) / (image.max() - image.min())
+        image = (image - image.min()) / (image.max() - image.min() + 1e-6)
         
         if self.split == 'train' and not self.is_ssl:
             return self.train_transform({'image': torch.from_numpy(image).unsqueeze(0),
@@ -134,7 +134,7 @@ class Fault_Simple(Dataset):
             image = np.load(os.path.join(self.root_dir, self.data_lst[index]))
         
         # min max norm
-        image = (image - image.min()) / (image.max() - image.min())
+        image = (image - image.min()) / (image.max() - image.min() + 1e-6)
         
         return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                                 'image_name': self.data_lst[index]})
@@ -161,7 +161,7 @@ class Fault_Simulate(Dataset):
         fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
         
         # min max norm
-        seis = (seis - seis.min()) / (seis.max() - seis.min())
+        seis = (seis - seis.min()) / (seis.max() - seis.min() + 1e-6)
         
         
         if self.split == 'train':
@@ -354,7 +354,7 @@ class FaultWholeRandom(Dataset):
                                center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2]
         
         # min max norm 
-        image = (image - image.min()) / (image.max() - image.min())
+        image = (image - image.min()) / (image.max() - image.min() + 1e-6)
         
         if self.dilate:
             for idx in range(mask.shape[0]):

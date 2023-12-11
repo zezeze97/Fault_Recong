@@ -56,7 +56,7 @@ class Fault_Simulate_Multi_Decode(Dataset):
         fault = np.fromfile(os.path.join(self.root_dir, 'fault', self.data_lst[index]), dtype=np.single).reshape(128, 128, 128)
         
         # min max norm
-        seis = (seis - seis.min()) / (seis.max() - seis.min())
+        seis = (seis - seis.min()) / (seis.max() - seis.min() + 1e-6)
         
         labels = [fault]
         for i in range(1, self.num_decoder):
@@ -91,7 +91,7 @@ class Fault_Simple(Dataset):
             image = np.load(os.path.join(self.root_dir, self.data_lst[index]))
         
         # min max norm
-        image = (image - image.min()) / (image.max() - image.min())
+        image = (image - image.min()) / (image.max() - image.min() + 1e-6)
         return self.transform({'image': torch.from_numpy(image).unsqueeze(0),
                                 'image_name': self.data_lst[index]})
 
@@ -135,7 +135,7 @@ class Fault_Multi_Decode(Dataset):
         f.close()
         
         # min max norm
-        image = (image - image.min()) / (image.max()-image.min())
+        image = (image - image.min()) / (image.max()-image.min()+1e-6)
         labels = [mask]
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(mask.shape)
@@ -316,7 +316,7 @@ class FaultWholeRandom_Multi_Decode(Dataset):
                                center_y-self.crop_size[1]//2:center_y+self.crop_size[1]//2,
                                center_z-self.crop_size[2]//2:center_z+self.crop_size[2]//2].copy()
         
-        image = (image - image.min()) / (image.max() - image.min())
+        image = (image - image.min()) / (image.max() - image.min()+1e-6)
         labels = [mask]
         for i in range(1, self.num_decoder):
             dilate_mask = np.zeros(self.crop_size)
