@@ -34,7 +34,7 @@ model = dict(
         use_abs_pos_embed=False,
         act_cfg=dict(type='GELU'),
         norm_cfg=backbone_norm_cfg,
-        init_cfg=dict(type='Pretrained',checkpoint=checkpoint_file)
+        # init_cfg=dict(type='Pretrained',checkpoint=checkpoint_file)
         ),
     decode_head=dict(
         type='UPerHead',
