@@ -51,9 +51,10 @@ class PerImageNormalization(BaseTransform):
         img = results['img']
         # img = (img - img.min()) / (img.max() - img.min())
         if self.ignore_zoro:
-            mean = np.mean(img[img != 0.0])
-            std = np.std(img[img != 0.0])
-            img[img != 0.0] = (img[img != 0.0] - mean) / std
+            non_zero_pos = img != 0.0
+            mean = np.mean(img[non_zero_pos])
+            std = np.std(img[non_zero_pos])
+            img[non_zero_pos] = (img[non_zero_pos] - mean) / std
         else:
             mean = np.mean(img)
             std = np.std(img)
