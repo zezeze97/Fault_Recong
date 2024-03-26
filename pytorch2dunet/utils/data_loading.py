@@ -130,6 +130,7 @@ class CarvanaDataset(BasicDataset):
 class FaultDataset(Dataset):
     def __init__(self, data_dir: str):
         self.ids = os.listdir(os.path.join(data_dir, 'image'))
+        self.ids = [item.split('.')[0] for item in self.ids]
         if not self.ids:
             raise RuntimeError(f'No input file found in {data_dir}, make sure you put your images there')
         self.data_dir = data_dir
@@ -142,7 +143,8 @@ class FaultDataset(Dataset):
     def __getitem__(self, idx):
         name = self.ids[idx]
         
-        img = cv2.imread(os.path.join(self.data_dir, 'image', name), cv2.IMREAD_UNCHANGED)
+        # img = cv2.imread(os.path.join(self.data_dir, 'image', name), cv2.IMREAD_UNCHANGED)
+        img = np.load(os.path.join(self.data_dir, 'image', f'{name}.npy'))
         mask = cv2.imread(os.path.join(self.data_dir, 'ann', name), cv2.IMREAD_UNCHANGED)
 
         assert img.size == mask.size, \

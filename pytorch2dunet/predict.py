@@ -71,7 +71,7 @@ if __name__ == '__main__':
     logging.info('Model loaded!')
     for i, filename in enumerate(in_files):
         logging.info(f'Predicting image {filename} ...')
-        img = cv2.imread(os.path.join(args.input, filename), cv2.IMREAD_UNCHANGED)
+        img = np.load(os.path.join(args.input, filename))
         mask = predict_img(net=net,
                            full_img=img,
                            out_threshold=args.mask_threshold,
